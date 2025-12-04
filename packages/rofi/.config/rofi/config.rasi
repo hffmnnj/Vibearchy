@@ -21,6 +21,10 @@ configuration {
     kb-mode-next: "Control+Tab";
     kb-mode-previous: "Control+Shift+Tab";
 
+    /* Mouse Bindings */
+    me-select-entry: "";
+    me-accept-entry: "MousePrimary";
+
     /* Matching */
     matching: "fuzzy";
     tokenize: true;
