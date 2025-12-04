@@ -1,0 +1,267 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+ * Vibearchy Rofi Theme
+ * Celestial Sky Blue color scheme
+ * ═══════════════════════════════════════════════════════════════════════════════ */
+
+* {
+    /* Primary Accent - Sky Blue */
+    sky:            #7dcfffFF;
+    sky-dim:        #58a6ffFF;
+    sky-bright:     #a9e1ffFF;
+
+    /* Base Colors */
+    base:           #1e1e2eFF;
+    mantle:         #181825FF;
+    crust:          #11111bFF;
+    surface0:       #313244FF;
+    surface1:       #45475aFF;
+    surface2:       #585b70FF;
+
+    /* Overlay Colors */
+    overlay0:       #6c7086FF;
+    overlay1:       #7f849cFF;
+    overlay2:       #9399b2FF;
+
+    /* Text Colors */
+    text:           #cdd6f4FF;
+    subtext0:       #a6adc8FF;
+    subtext1:       #bac2deFF;
+
+    /* Status Colors */
+    red:            #f38ba8FF;
+    green:          #a6e3a1FF;
+    yellow:         #f9e2afFF;
+    peach:          #fab387FF;
+    mauve:          #cba6f7FF;
+    teal:           #94e2d5FF;
+
+    /* Theme Assignments */
+    background:     #1e1e2eCC;
+    foreground:     #cdd6f4FF;
+    accent:         #7dcfff69;
+    background-tb:  #313244FF;
+    border-tb:      #45475aFF;
+    selected:       linear-gradient(to right, #313244FF, #7dcfff69);
+    button:         linear-gradient(#585b70FF);
+    button-selected: linear-gradient(#7dcfff69);
+    active:         linear-gradient(to right, #94e2d5FF, #a6e3a1FF);
+    urgent:         #f38ba8FF;
+
+    /* Spacing */
+    border-radius:  12px;
+    spacing:        8px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Main Window
+ * ───────────────────────────────────────────────────────────────────────────── */
+window {
+    location: center;
+    anchor: center;
+    fullscreen: false;
+    width: 550px;
+    x-offset: 0px;
+    y-offset: 0px;
+    enabled: true;
+    margin: 0px;
+    padding: 0px;
+    border: 2px solid;
+    border-radius: 12px;
+    border-color: @sky;
+    cursor: "default";
+    transparency: "real";
+    background-color: @background;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Main Container
+ * ───────────────────────────────────────────────────────────────────────────── */
+mainbox {
+    enabled: true;
+    spacing: 16px;
+    padding: 24px;
+    background-color: transparent;
+    children: [ "inputbar", "message", "listview" ];
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Input Bar
+ * ───────────────────────────────────────────────────────────────────────────── */
+inputbar {
+    enabled: true;
+    spacing: 12px;
+    margin: 0px;
+    background-color: transparent;
+    children: [ "textbox-prompt-colon", "entry" ];
+}
+
+textbox-prompt-colon {
+    enabled: true;
+    expand: false;
+    padding: 14px 14px 14px 18px;
+    border: 0px;
+    border-radius: 8px;
+    background-color: @background-tb;
+    text-color: @sky;
+    str: " ";
+}
+
+entry {
+    enabled: true;
+    padding: 14px 18px;
+    border: 0px;
+    border-radius: 8px;
+    background-color: @background-tb;
+    text-color: @foreground;
+    cursor: text;
+    placeholder: "Search...";
+    placeholder-color: @subtext0;
+    vertical-align: 0.5;
+    horizontal-align: 0.0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Message
+ * ───────────────────────────────────────────────────────────────────────────── */
+message {
+    enabled: true;
+    margin: 0px;
+    padding: 0px;
+    border: 0px solid;
+    border-radius: 0px;
+    background-color: transparent;
+    text-color: @foreground;
+}
+
+textbox {
+    padding: 12px;
+    border: 0px solid;
+    border-radius: 8px;
+    background-color: @background-tb;
+    text-color: @subtext1;
+    vertical-align: 0.5;
+    horizontal-align: 0.5;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * List View
+ * ───────────────────────────────────────────────────────────────────────────── */
+listview {
+    enabled: true;
+    columns: 1;
+    lines: 6;
+    cycle: true;
+    dynamic: true;
+    scrollbar: false;
+    layout: vertical;
+    reverse: false;
+    fixed-height: true;
+    fixed-columns: true;
+    spacing: 8px;
+    background-color: transparent;
+    cursor: "default";
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * List Elements
+ * ───────────────────────────────────────────────────────────────────────────── */
+element {
+    enabled: true;
+    spacing: 12px;
+    margin: 0px;
+    padding: 12px;
+    border: 0px solid;
+    border-radius: 8px;
+    background-color: transparent;
+    text-color: @foreground;
+    cursor: pointer;
+}
+
+element normal.normal {
+    background-color: transparent;
+    text-color: @foreground;
+}
+
+element normal.active {
+    background-image: @active;
+    text-color: @foreground;
+}
+
+element normal.urgent {
+    background-color: @urgent;
+    text-color: @background;
+}
+
+element selected.normal {
+    border-radius: 8px;
+    background-image: @selected;
+    text-color: @foreground;
+}
+
+element selected.active {
+    background-color: @sky;
+    text-color: @background;
+}
+
+element selected.urgent {
+    background-color: @urgent;
+    text-color: @background;
+}
+
+element-icon {
+    background-color: transparent;
+    size: 32px;
+    cursor: inherit;
+}
+
+element-text {
+    background-color: inherit;
+    text-color: inherit;
+    cursor: inherit;
+    vertical-align: 0.5;
+    horizontal-align: 0.0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Mode Switcher
+ * ───────────────────────────────────────────────────────────────────────────── */
+mode-switcher {
+    enabled: true;
+    expand: false;
+    spacing: 12px;
+    background-color: transparent;
+}
+
+button {
+    padding: 10px 16px;
+    border-radius: 8px;
+    background-image: @button;
+    text-color: @foreground;
+    cursor: pointer;
+}
+
+button selected {
+    background-image: @button-selected;
+    text-color: @background;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Error Message
+ * ───────────────────────────────────────────────────────────────────────────── */
+error-message {
+    padding: 20px;
+    border-radius: 8px;
+    background-color: @background;
+    text-color: @urgent;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Scrollbar
+ * ───────────────────────────────────────────────────────────────────────────── */
+scrollbar {
+    width: 4px;
+    border: 0;
+    handle-color: @sky;
+    handle-width: 4px;
+    padding: 0;
+}

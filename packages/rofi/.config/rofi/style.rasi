@@ -1,0 +1,171 @@
+/* Vibearchy Rofi Style - Celestial Sky Blue Theme */
+
+@import "theme/celestial.rasi"
+
+/* Main Window */
+window {
+    location: center;
+    anchor: center;
+    fullscreen: false;
+    width: 550px;
+    x-offset: 0px;
+    y-offset: 0px;
+    enabled: true;
+    margin: 0px;
+    padding: 0px;
+    border: 2px solid;
+    border-radius: 12px;
+    border-color: @sky;
+    cursor: "default";
+    transparency: "real";
+    background-color: @background;
+}
+
+/* Main Container */
+mainbox {
+    enabled: true;
+    spacing: 16px;
+    padding: 24px;
+    background-color: transparent;
+    children: [ "inputbar", "mode-switcher", "listview" ];
+}
+
+/* Input Bar */
+inputbar {
+    enabled: true;
+    spacing: 12px;
+    margin: 0px;
+    background-color: transparent;
+    children: [ "textbox-prompt-colon", "entry" ];
+}
+
+textbox-prompt-colon {
+    enabled: true;
+    expand: false;
+    padding: 14px 14px 14px 18px;
+    border: 0px;
+    border-radius: 8px;
+    background-color: @background-tb;
+    text-color: @sky;
+    str: " ";
+}
+
+entry {
+    enabled: true;
+    padding: 14px 18px;
+    border: 0px;
+    border-radius: 8px;
+    background-color: @background-tb;
+    text-color: @foreground;
+    cursor: text;
+    placeholder: "Search...";
+    placeholder-color: @subtext0;
+    vertical-align: 0.5;
+    horizontal-align: 0.0;
+}
+
+/* List View */
+listview {
+    enabled: true;
+    columns: 1;
+    lines: 6;
+    cycle: true;
+    dynamic: true;
+    scrollbar: false;
+    layout: vertical;
+    reverse: false;
+    fixed-height: true;
+    fixed-columns: true;
+    spacing: 8px;
+    background-color: transparent;
+    cursor: "default";
+}
+
+/* List Elements */
+element {
+    enabled: true;
+    spacing: 12px;
+    margin: 0px;
+    padding: 12px;
+    border: 0px solid;
+    border-radius: 8px;
+    background-color: transparent;
+    text-color: @foreground;
+    cursor: pointer;
+}
+
+element normal.active {
+    background-image: @active;
+    text-color: @foreground;
+}
+
+element selected.normal {
+    border-radius: 8px;
+    background-image: @selected;
+    text-color: @foreground;
+}
+
+element selected.active {
+    background-color: @sky;
+    text-color: @background;
+}
+
+element-icon {
+    background-color: transparent;
+    size: 42px;
+    cursor: inherit;
+}
+
+element-text {
+    background-color: inherit;
+    text-color: inherit;
+    cursor: inherit;
+    vertical-align: 0.5;
+    horizontal-align: 0.0;
+}
+
+/* Mode Switcher */
+mode-switcher {
+    enabled: true;
+    expand: false;
+    spacing: 12px;
+    background-color: transparent;
+}
+
+button {
+    padding: 10px 16px;
+    border-radius: 8px;
+    background-image: @button;
+    text-color: @foreground;
+    cursor: pointer;
+}
+
+button selected {
+    background-image: @button-selected;
+    text-color: @background;
+}
+
+/* Error Message */
+error-message {
+    padding: 20px;
+    border-radius: 8px;
+    background-color: @background;
+    text-color: @urgent;
+}
+
+textbox {
+    padding: 0px;
+    border-radius: 8px;
+    text-color: @foreground;
+    vertical-align: 0.5;
+    horizontal-align: 0.0;
+}
+
+/* Scrollbar (if enabled) */
+scrollbar {
+    width: 4px;
+    border: 0;
+    handle-color: @sky;
+    handle-width: 4px;
+    padding: 0;
+}

@@ -1,0 +1,282 @@
+#!/bin/bash
+
+# VPN & Network Menu
+# Unified control for Mullvad, Tailscale, and NextDNS
+
+# Theme
+theme="$HOME/.config/rofi/scripts/vpn-menu/style.rasi"
+
+# Icons
+mullvad_icon='󰖂'
+tailscale_icon='󰒒'
+nextdns_icon='󰇖'
+connect_icon='󰌾'
+disconnect_icon='󰌿'
+server_icon='󰒍'
+status_icon='󰋼'
+settings_icon='󰒓'
+refresh_icon='󰑓'
+exit_icon='󰗼'
+
+# Get current status
+get_mullvad_status() {
+    if mullvad status 2>/dev/null | grep -q "Connected"; then
+        local server=$(mullvad status | grep -oP '(?<=to ).*(?= in)')
+        local country=$(mullvad status | grep -oP '(?<=in ).*')
+        echo "connected|$server|$country"
+    else
+        echo "disconnected||"
+    fi
+}
+
+get_tailscale_status() {
+    if tailscale status 2>/dev/null | head -1 | grep -qv "stopped"; then
+        echo "connected"
+    else
+        echo "disconnected"
+    fi
+}
+
+get_nextdns_status() {
+    if nextdns status 2>/dev/null | grep -q "running"; then
+        echo "running"
+    else
+        echo "stopped"
+    fi
+}
+
+# Main menu
+show_main_menu() {
+    local mullvad_status=$(get_mullvad_status)
+    local mullvad_state=$(echo "$mullvad_status" | cut -d'|' -f1)
+    local tailscale_state=$(get_tailscale_status)
+    local nextdns_state=$(get_nextdns_status)
+
+    # Build status indicators
+    local mullvad_indicator="[OFF]"
+    local tailscale_indicator="[OFF]"
+    local nextdns_indicator="[OFF]"
+
+    [[ "$mullvad_state" == "connected" ]] && mullvad_indicator="[ON]"
+    [[ "$tailscale_state" == "connected" ]] && tailscale_indicator="[ON]"
+    [[ "$nextdns_state" == "running" ]] && nextdns_indicator="[ON]"
+
+    echo -e "$mullvad_icon Mullvad VPN $mullvad_indicator"
+    echo -e "$tailscale_icon Tailscale $tailscale_indicator"
+    echo -e "$nextdns_icon NextDNS $nextdns_indicator"
+    echo -e "$status_icon Network Status"
+    echo -e "$refresh_icon Refresh All"
+}
+
+# Mullvad submenu
+show_mullvad_menu() {
+    local status=$(get_mullvad_status)
+    local state=$(echo "$status" | cut -d'|' -f1)
+    local server=$(echo "$status" | cut -d'|' -f2)
+    local country=$(echo "$status" | cut -d'|' -f3)
+
+    if [[ "$state" == "connected" ]]; then
+        echo -e "$disconnect_icon Disconnect"
+        echo -e "$server_icon Change Server"
+        echo -e "$status_icon Status: $server ($country)"
+    else
+        echo -e "$connect_icon Connect"
+        echo -e "$server_icon Select Server"
+    fi
+    echo -e "$settings_icon Open Mullvad App"
+    echo -e "$exit_icon Back"
+}
+
+# Mullvad server selection
+show_mullvad_servers() {
+    echo -e "󰈀 Auto (Fastest)"
+    echo -e "󰴽 United States"
+    echo -e "󰴿 United Kingdom"
+    echo -e "󰴺 Germany"
+    echo -e "󰿘 Netherlands"
+    echo -e "󰴾 Sweden"
+    echo -e "󰴻 Japan"
+    echo -e "󰵀 Australia"
+    echo -e "󰴼 Canada"
+    echo -e "󰴽 Switzerland"
+    echo -e "$exit_icon Back"
+}
+
+# Tailscale submenu
+show_tailscale_menu() {
+    local state=$(get_tailscale_status)
+
+    if [[ "$state" == "connected" ]]; then
+        echo -e "$disconnect_icon Disconnect"
+        echo -e "$server_icon Exit Nodes"
+        echo -e "$status_icon Show Devices"
+    else
+        echo -e "$connect_icon Connect"
+    fi
+    echo -e "$settings_icon Open Web Console"
+    echo -e "$exit_icon Back"
+}
+
+# Tailscale devices
+show_tailscale_devices() {
+    tailscale status 2>/dev/null | tail -n +1 | while read -r line; do
+        local ip=$(echo "$line" | awk '{print $1}')
+        local name=$(echo "$line" | awk '{print $2}')
+        [[ -n "$name" ]] && echo -e "󰒋 $name ($ip)"
+    done
+    echo -e "$exit_icon Back"
+}
+
+# NextDNS submenu
+show_nextdns_menu() {
+    local state=$(get_nextdns_status)
+
+    if [[ "$state" == "running" ]]; then
+        echo -e "$disconnect_icon Disable NextDNS"
+        echo -e "$status_icon Status: Active"
+    else
+        echo -e "$connect_icon Enable NextDNS"
+        echo -e "$status_icon Status: Inactive"
+    fi
+    echo -e "󰒃 Toggle Hardened Privacy"
+    echo -e "󰍹 Open Dashboard"
+    echo -e "$exit_icon Back"
+}
+
+# Network status
+show_network_status() {
+    local mullvad_status=$(mullvad status 2>/dev/null)
+    local public_ip=$(curl -s --max-time 3 ifconfig.me 2>/dev/null || echo "Unknown")
+    local tailscale_ip=$(tailscale ip -4 2>/dev/null || echo "Not connected")
+    local nextdns_state=$(get_nextdns_status)
+
+    notify-send "Network Status" "Public IP: $public_ip
+Tailscale IP: $tailscale_ip
+NextDNS: $nextdns_state
+
+Mullvad:
+$mullvad_status" -t 10000
+}
+
+# Rofi command
+rofi_cmd() {
+    rofi -dmenu -p "$1" -mesg "$2" -theme "$theme"
+}
+
+# Execute Mullvad action
+execute_mullvad() {
+    local choice="$1"
+
+    case "$choice" in
+        *"Disconnect"*)
+            mullvad disconnect
+            notify-send "Mullvad VPN" "Disconnected" -i network-offline
+            ;;
+        *"Connect"*)
+            mullvad connect
+            notify-send "Mullvad VPN" "Connecting..." -i network-vpn
+            ;;
+        *"Change Server"*|*"Select Server"*)
+            local server=$(show_mullvad_servers | rofi_cmd "Server" "Select Mullvad server")
+            case "$server" in
+                *"Auto"*) mullvad relay set location any ;;
+                *"United States"*) mullvad relay set location us ;;
+                *"United Kingdom"*) mullvad relay set location gb ;;
+                *"Germany"*) mullvad relay set location de ;;
+                *"Netherlands"*) mullvad relay set location nl ;;
+                *"Sweden"*) mullvad relay set location se ;;
+                *"Japan"*) mullvad relay set location jp ;;
+                *"Australia"*) mullvad relay set location au ;;
+                *"Canada"*) mullvad relay set location ca ;;
+                *"Switzerland"*) mullvad relay set location ch ;;
+                *"Back"*) return ;;
+            esac
+            [[ "$server" != *"Back"* ]] && mullvad connect && notify-send "Mullvad VPN" "Connecting to selected server..." -i network-vpn
+            ;;
+        *"Open Mullvad"*)
+            mullvad-vpn &
+            ;;
+    esac
+}
+
+# Execute Tailscale action
+execute_tailscale() {
+    local choice="$1"
+
+    case "$choice" in
+        *"Disconnect"*)
+            sudo tailscale down
+            notify-send "Tailscale" "Disconnected" -i network-offline
+            ;;
+        *"Connect"*)
+            sudo tailscale up
+            notify-send "Tailscale" "Connected" -i network-vpn
+            ;;
+        *"Exit Nodes"*)
+            notify-send "Tailscale" "Exit nodes not configured on this account" -i dialog-information
+            ;;
+        *"Show Devices"*)
+            local devices=$(show_tailscale_devices | rofi_cmd "Devices" "Tailscale network devices")
+            ;;
+        *"Open Web"*)
+            xdg-open "https://login.tailscale.com/admin/machines" &
+            ;;
+    esac
+}
+
+# Execute NextDNS action
+execute_nextdns() {
+    local choice="$1"
+
+    case "$choice" in
+        *"Disable"*)
+            sudo nextdns deactivate
+            notify-send "NextDNS" "Disabled" -i network-offline
+            ;;
+        *"Enable"*)
+            sudo nextdns activate
+            notify-send "NextDNS" "Enabled" -i network-vpn
+            ;;
+        *"Hardened Privacy"*)
+            local current=$(nextdns config | grep "hardened-privacy" | awk '{print $2}')
+            if [[ "$current" == "true" ]]; then
+                sudo nextdns config set -hardened-privacy=false
+                notify-send "NextDNS" "Hardened Privacy: OFF"
+            else
+                sudo nextdns config set -hardened-privacy=true
+                notify-send "NextDNS" "Hardened Privacy: ON"
+            fi
+            ;;
+        *"Dashboard"*)
+            xdg-open "https://my.nextdns.io" &
+            ;;
+    esac
+}
+
+# Main execution
+main_choice=$(show_main_menu | rofi_cmd "VPN & Network" "Manage VPN and DNS services")
+
+case "$main_choice" in
+    *"Mullvad"*)
+        mullvad_choice=$(show_mullvad_menu | rofi_cmd "Mullvad VPN" "Control Mullvad VPN")
+        [[ "$mullvad_choice" != *"Back"* && -n "$mullvad_choice" ]] && execute_mullvad "$mullvad_choice"
+        ;;
+    *"Tailscale"*)
+        tailscale_choice=$(show_tailscale_menu | rofi_cmd "Tailscale" "Control Tailscale")
+        [[ "$tailscale_choice" != *"Back"* && -n "$tailscale_choice" ]] && execute_tailscale "$tailscale_choice"
+        ;;
+    *"NextDNS"*)
+        nextdns_choice=$(show_nextdns_menu | rofi_cmd "NextDNS" "Control NextDNS")
+        [[ "$nextdns_choice" != *"Back"* && -n "$nextdns_choice" ]] && execute_nextdns "$nextdns_choice"
+        ;;
+    *"Network Status"*)
+        show_network_status
+        ;;
+    *"Refresh"*)
+        notify-send "Network" "Refreshing connections..."
+        mullvad status >/dev/null 2>&1
+        tailscale status >/dev/null 2>&1
+        nextdns status >/dev/null 2>&1
+        notify-send "Network" "Status refreshed"
+        ;;
+esac

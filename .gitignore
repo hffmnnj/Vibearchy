@@ -1,0 +1,119 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Vibearchy .gitignore
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Claude Code
+.claude/
+.claude-prompts/
+claude_output/
+CLAUDE.md
+
+# Obsidian
+.obsidian/
+
+# Wallpapers (downloaded at install time, not hosted in repo)
+packages/hypr/.config/hypr/walls/**/*.jpg
+packages/hypr/.config/hypr/walls/**/*.jpeg
+packages/hypr/.config/hypr/walls/**/*.png
+packages/hypr/.config/hypr/walls/**/*.webp
+packages/hypr/.config/hypr/walls/**/*.gif
+# Keep the directory structure
+!packages/hypr/.config/hypr/walls/
+!packages/hypr/.config/hypr/walls/*/
+!packages/hypr/.config/hypr/walls/*/.gitkeep
+
+# Wallpaper download temp files
+/tmp/vibearchy-walls/
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Secrets - NEVER commit these
+.ssh/id_*
+.ssh/known_hosts*
+.ssh/sockets/
+*.pem
+*.key
+*credentials*
+*secret*
+.env
+.env.*
+
+# Editor
+*.swp
+*.swo
+*~
+.netrwhist
+.nvimlog
+
+# Fish (user-specific, auto-generated)
+.config/fish/fish_variables
+.config/fish/fishd.*
+packages/shell/.config/fish/fish_variables
+packages/shell/.config/fish/fishd.*
+**/fish_variables
+**/fish_history
+
+# Nvim
+.config/nvim/lazy-lock.json
+.config/nvim/plugin/
+.config/nvim/.luarc.json
+
+# Caches
+.cache/
+__pycache__/
+*.pyc
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup files created by installer
+*.vibearchy-backup.*
+
+# Large files
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.iso
+*.tar.gz
+*.zip
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Shell & History
+# ═══════════════════════════════════════════════════════════════════════════════
+.bash_history
+.zsh_history
+.lesshst
+.wget-hsts
+.python_history
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Application State (user-specific)
+# ═══════════════════════════════════════════════════════════════════════════════
+packages/*/state/
+packages/*/.local/
+*.log
+*.pid
+
+# Waybar state
+packages/waybar/.config/waybar/*.log
+
+# Rofi recent
+packages/rofi/.config/rofi/*.cache
+packages/rofi/.local/
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Additional Secrets
+# ═══════════════════════════════════════════════════════════════════════════════
+**/api_key*
+**/apikey*
+**/*token*
+**/oauth*
+*.gpg
+*.asc
+**/.password-store/
+
+# GPG/SSH agent sockets
+*.sock
+*.socket

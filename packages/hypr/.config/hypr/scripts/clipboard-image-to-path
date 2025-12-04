@@ -1,0 +1,31 @@
+#!/bin/bash
+# Script to convert clipboard image to a file path for Claude Code
+# This allows pasting images in terminal applications
+
+set -e
+
+# Check if clipboard has image data
+if ! wl-paste --list-types | grep -q "image/png\|image/jpeg\|image/jpg"; then
+    notify-send -u normal "No Image" "Clipboard doesn't contain an image" -t 2000
+    exit 1
+fi
+
+# Create temp directory if it doesn't exist
+TEMP_DIR="/tmp/claude-code-images"
+mkdir -p "$TEMP_DIR"
+
+# Generate filename with timestamp
+FILENAME="screenshot-$(date +%Y%m%d-%H%M%S).png"
+FILEPATH="$TEMP_DIR/$FILENAME"
+
+# Save clipboard image to file
+wl-paste --type image/png > "$FILEPATH"
+
+# Copy file path to clipboard as text
+echo -n "$FILEPATH" | wl-copy --type text/plain
+
+# Send notification
+notify-send -i "$FILEPATH" "Image Path Copied" "File: $FILENAME\n\nPaste in Claude Code to view" -t 3000
+
+echo "Image saved to: $FILEPATH"
+echo "Path copied to clipboard - paste it in Claude Code"

@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+# Copy most recent screenshot path to clipboard
+# Works with Vibearchy capture.sh tracking or by finding newest file
+#
+
+SCREENSHOT_DIR="${SCREENSHOT_DIR:-$HOME/Pictures/Screenshots}"
+LAST_SCREENSHOT_FILE="/tmp/vibearchy-last-screenshot"
+
+# First try the tracking file (more reliable if capture.sh was used)
+if [[ -f "$LAST_SCREENSHOT_FILE" ]]; then
+    latest_screenshot=$(cat "$LAST_SCREENSHOT_FILE")
+    if [[ -f "$latest_screenshot" ]]; then
+        echo -n "$latest_screenshot" | wl-copy
+        filename=$(basename "$latest_screenshot")
+        notify-send "Path Copied" "$filename" -t 3000 -i "$latest_screenshot"
+        exit 0
+    fi
+fi
+
+# Fallback: find the most recent screenshot in directory
+if [[ ! -d "$SCREENSHOT_DIR" ]]; then
+    notify-send "Screenshot" "Directory not found: $SCREENSHOT_DIR" -u critical
+    exit 1
+fi
+
+latest_screenshot=$(ls -t "$SCREENSHOT_DIR"/*.png 2>/dev/null | head -n 1)
+
+if [[ -z "$latest_screenshot" ]]; then
+    notify-send "Screenshot" "No screenshots found" -u normal
+    exit 1
+fi
+
+# Copy path to clipboard
+echo -n "$latest_screenshot" | wl-copy
+
+# Update tracking file
+echo "$latest_screenshot" > "$LAST_SCREENSHOT_FILE"
+
+# Notify
+filename=$(basename "$latest_screenshot")
+notify-send "Path Copied" "$filename" -t 3000 -i "$latest_screenshot"

@@ -1,0 +1,47 @@
+# Celestial Sky Blue Theme
+# Vibearchy original theme based on Catppuccin Mocha with Sky Blue accent
+
+# Background and foreground
+background = 1e1e2e
+foreground = cdd6f4
+
+# Cursor
+cursor-color = 7dcfff
+cursor-text = 1e1e2e
+
+# Selection
+selection-background = 7dcfff
+selection-foreground = 1e1e2e
+
+# The 16 terminal colors
+# Black
+palette = 0=#45475a
+palette = 8=#585b70
+
+# Red
+palette = 1=#f38ba8
+palette = 9=#f38ba8
+
+# Green
+palette = 2=#a6e3a1
+palette = 10=#a6e3a1
+
+# Yellow
+palette = 3=#f9e2af
+palette = 11=#f9e2af
+
+# Blue (Sky Blue accent)
+palette = 4=#7dcfff
+palette = 12=#a9e1ff
+
+# Magenta
+palette = 5=#f5c2e7
+palette = 13=#f5c2e7
+
+# Cyan
+palette = 6=#94e2d5
+palette = 14=#94e2d5
+
+# White
+palette = 7=#bac2de
+palette = 15=#a6adc8

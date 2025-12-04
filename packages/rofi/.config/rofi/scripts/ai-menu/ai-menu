@@ -1,0 +1,404 @@
+#!/bin/bash
+
+# AI Assistant Menu
+# Quick access to various AI tools
+
+# Icons (Nerd Font)
+interpreter_icon='󰧑'
+chat_icon='󰭻'
+shell_icon='󰆍'
+ollama_icon='󱙺'
+claude_icon='󰘦'
+folder_icon='󰉋'
+web_icon='󰖟'
+app_icon='󰀲'
+mcp_icon='󱂛'
+search_icon='󰍉'
+memory_icon='󰍛'
+flash_icon='󱐋'
+pro_icon='󰓥'
+yolo_icon='󱐌'
+safe_icon='󰒃'
+code_icon='󰅩'
+continue_icon='󰏫'
+resume_icon='󰋚'
+plan_icon='󰙨'
+sonnet_icon='󰔶'
+opus_icon='󱤚'
+haiku_icon='󰓥'
+clipboard_icon='󰅍'
+screenshot_icon='󰹑'
+council_icon='󰑴'
+cfo_icon='💰'
+cmo_icon='📣'
+cto_icon='⚙️'
+coo_icon='🏭'
+legal_icon='⚖️'
+investor_icon='😈'
+wildcard_icon='🃏'
+chairman_icon='👑'
+discuss_icon='󰍩'
+research_icon='󰈙'
+status_icon='󱖫'
+
+# Main rofi command
+rofi_cmd() {
+    rofi -dmenu \
+        -p "AI Assistant" \
+        -mesg "Select an AI tool" \
+        -theme ~/.config/rofi/scripts/ai-menu/style.rasi
+}
+
+# Submenu rofi command
+submenu_rofi_cmd() {
+    rofi -dmenu \
+        -p "$1" \
+        -mesg "$2" \
+        -theme ~/.config/rofi/scripts/ai-menu/style.rasi
+}
+
+# Build main menu
+build_menu() {
+    echo -e "$mcp_icon MCP Assistant"
+    echo -e "$chat_icon AIChat"
+    echo -e "$interpreter_icon Open Interpreter"
+    echo -e "$ollama_icon Ollama Chat"
+    echo -e "$claude_icon Claude Code"
+    echo -e "$council_icon AI Council"
+    echo -e "$clipboard_icon Clipboard AI"
+    echo -e "$screenshot_icon Screenshot AI"
+}
+
+# Build AIChat submenu
+build_aichat_menu() {
+    echo -e "$pro_icon Gemini 2.5 Pro"
+    echo -e "$flash_icon Gemini 2.5 Flash"
+    echo -e "$shell_icon Shell Mode"
+    echo -e "$search_icon Web Search"
+    echo -e "$memory_icon Memory Query"
+}
+
+# Build Open Interpreter submenu
+build_interpreter_menu() {
+    echo -e "$pro_icon Default (2.5 Pro)"
+    echo -e "$flash_icon Fast (2.5 Flash)"
+    echo -e "$code_icon Coding Mode"
+    echo -e "$yolo_icon YOLO (Auto-run)"
+}
+
+# Build Claude Code main menu
+build_claude_main_menu() {
+    echo -e "$continue_icon Continue Last"
+    echo -e "$resume_icon Resume Session..."
+    echo -e "$folder_icon Open Project..."
+    echo -e "$plan_icon Plan Mode..."
+}
+
+# Build Claude Code project menu
+build_claude_projects() {
+    echo -e "$web_icon Zolt Web"
+    echo -e "$app_icon Zolt App"
+    echo -e "$folder_icon ~/Documents"
+    echo -e "$folder_icon ~/Projects"
+    echo -e "$folder_icon ~/"
+}
+
+# Build Claude Code model menu
+build_claude_model_menu() {
+    echo -e "$sonnet_icon Sonnet (fast)"
+    echo -e "$opus_icon Opus (powerful)"
+    echo -e "$haiku_icon Haiku (quick)"
+}
+
+# Build Claude Code permission menu
+build_claude_permission_menu() {
+    echo -e "$safe_icon Normal"
+    echo -e "$yolo_icon YOLO (skip permissions)"
+}
+
+# Resolve project directory from selection
+resolve_project_dir() {
+    case "$1" in
+        *"Zolt Web"*) echo "$HOME/Documents/Zolt Ring/zoltring-web" ;;
+        *"Zolt App"*) echo "$HOME/Documents/Zolt Ring/zoltring-app" ;;
+        *"~/Documents"*) echo "$HOME/Documents" ;;
+        *"~/Projects"*) echo "$HOME/Projects" ;;
+        *"~/"*) echo "$HOME" ;;
+        *) echo "${1/#\~/$HOME}" ;;
+    esac
+}
+
+# Get model flag from selection
+get_model_flag() {
+    case "$1" in
+        *"Sonnet"*) echo "--model sonnet" ;;
+        *"Opus"*) echo "--model opus" ;;
+        *"Haiku"*) echo "--model haiku" ;;
+        *) echo "" ;;
+    esac
+}
+
+# Execute Claude Code action
+execute_claude_action() {
+    local claude_choice="$1"
+
+    case "$claude_choice" in
+        *"Continue Last"*)
+            ghostty -e claude --continue &
+            ;;
+        *"Resume Session"*)
+            ghostty -e claude --resume &
+            ;;
+        *"Open Project"*)
+            # Step 1: Select project
+            local project="$(build_claude_projects | submenu_rofi_cmd "Project" "Select project or type path")"
+            [[ -z "$project" ]] && return
+
+            local dir="$(resolve_project_dir "$project")"
+            if [[ ! -d "$dir" ]]; then
+                notify-send "AI Menu" "Directory not found: $dir"
+                return
+            fi
+
+            # Step 2: Select model
+            local model_choice="$(build_claude_model_menu | submenu_rofi_cmd "Model" "Select Claude model")"
+            [[ -z "$model_choice" ]] && return
+            local model_flag="$(get_model_flag "$model_choice")"
+
+            # Step 3: Select permission mode
+            local perm_choice="$(build_claude_permission_menu | submenu_rofi_cmd "Mode" "Select permission mode")"
+            [[ -z "$perm_choice" ]] && return
+
+            local perm_flag=""
+            [[ "$perm_choice" == *"YOLO"* ]] && perm_flag="--dangerously-skip-permissions"
+
+            # Launch
+            ghostty -e bash -c "cd '$dir' && claude $model_flag $perm_flag" &
+            ;;
+        *"Plan Mode"*)
+            # Step 1: Select project
+            local project="$(build_claude_projects | submenu_rofi_cmd "Project" "Select project for planning")"
+            [[ -z "$project" ]] && return
+
+            local dir="$(resolve_project_dir "$project")"
+            if [[ ! -d "$dir" ]]; then
+                notify-send "AI Menu" "Directory not found: $dir"
+                return
+            fi
+
+            # Step 2: Select model
+            local model_choice="$(build_claude_model_menu | submenu_rofi_cmd "Model" "Select Claude model")"
+            [[ -z "$model_choice" ]] && return
+            local model_flag="$(get_model_flag "$model_choice")"
+
+            # Launch in plan mode (read-only)
+            ghostty -e bash -c "cd '$dir' && claude $model_flag --permission-mode plan" &
+            ;;
+    esac
+}
+
+# Build AI Council submenu (MAMF)
+build_council_menu() {
+    echo -e "$chairman_icon Launch TUI"
+    echo -e "$discuss_icon Council Discussion"
+    echo -e "$research_icon Deep Research (Claude)"
+    echo -e "$cfo_icon Ask CFO"
+    echo -e "$cmo_icon Ask CMO"
+    echo -e "$cto_icon Ask CTO"
+    echo -e "$coo_icon Ask COO"
+    echo -e "$legal_icon Ask Legal"
+    echo -e "$investor_icon Ask Investor"
+    echo -e "$wildcard_icon Ask Wild Card (Unfiltered)"
+    echo -e "$search_icon Query Knowledge Base"
+    echo -e "$status_icon Session History"
+}
+
+# Execute AI Council action (MAMF)
+execute_council_action() {
+    local council_choice="$1"
+    local mamf_cmd="$HOME/Documents/GitHub/me-and-my-friends/target/release/mamf"
+
+    case "$council_choice" in
+        *"Launch TUI"*)
+            ghostty -e "$mamf_cmd" tui &
+            ;;
+        *"Council Discussion"*)
+            local topic=$(echo -e "What should our pricing strategy be?\nHow should we approach the market?\nWhat's our competitive advantage?" | \
+                rofi -dmenu -p "Topic" -mesg "What should the council discuss?" \
+                -theme ~/.config/rofi/scripts/ai-menu/style.rasi)
+            if [[ -n "$topic" ]]; then
+                # Launch TUI with discussion pre-filled and auto-started
+                ghostty -e "$mamf_cmd" discuss "$topic" &
+            fi
+            ;;
+        *"Ask CFO"*)
+            local question=$(echo -e "What's our runway?\nShould we bootstrap or raise?\nWhat valuation makes sense?" | \
+                rofi -dmenu -p "CFO" -mesg "Ask CFO about funding, finances, runway" \
+                -theme ~/.config/rofi/scripts/ai-menu/style.rasi)
+            if [[ -n "$question" ]]; then
+                # Launch TUI in advisor mode
+                ghostty -e "$mamf_cmd" ask cfo "$question" &
+            fi
+            ;;
+        *"Ask CMO"*)
+            local question=$(echo -e "How to build a waitlist?\nBest marketing channels?\nBrand positioning strategy?" | \
+                rofi -dmenu -p "CMO" -mesg "Ask CMO about marketing, growth, branding" \
+                -theme ~/.config/rofi/scripts/ai-menu/style.rasi)
+            if [[ -n "$question" ]]; then
+                ghostty -e "$mamf_cmd" ask cmo "$question" &
+            fi
+            ;;
+        *"Ask CTO"*)
+            local question=$(echo -e "Best tech stack for this?\nHow to scale the architecture?\nSecurity considerations?" | \
+                rofi -dmenu -p "CTO" -mesg "Ask CTO about architecture, tech, security" \
+                -theme ~/.config/rofi/scripts/ai-menu/style.rasi)
+            if [[ -n "$question" ]]; then
+                ghostty -e "$mamf_cmd" ask cto "$question" &
+            fi
+            ;;
+        *"Ask COO"*)
+            local question=$(echo -e "How to optimize operations?\nBest vendors for this?\nProcess improvement ideas?" | \
+                rofi -dmenu -p "COO" -mesg "Ask COO about operations, execution, process" \
+                -theme ~/.config/rofi/scripts/ai-menu/style.rasi)
+            if [[ -n "$question" ]]; then
+                ghostty -e "$mamf_cmd" ask coo "$question" &
+            fi
+            ;;
+        *"Ask Legal"*)
+            local question=$(echo -e "What structure is best?\nIP protection strategy?\nCompliance requirements?" | \
+                rofi -dmenu -p "Legal" -mesg "Ask Legal about incorporation, IP, compliance" \
+                -theme ~/.config/rofi/scripts/ai-menu/style.rasi)
+            if [[ -n "$question" ]]; then
+                ghostty -e "$mamf_cmd" ask legal "$question" &
+            fi
+            ;;
+        *"Ask Investor"*)
+            local question=$(echo -e "What are the biggest risks?\nWhy would this fail?\nWhat's missing from our strategy?" | \
+                rofi -dmenu -p "Investor" -mesg "Devil's advocate - stress-test your ideas" \
+                -theme ~/.config/rofi/scripts/ai-menu/style.rasi)
+            if [[ -n "$question" ]]; then
+                ghostty -e "$mamf_cmd" ask investor "$question" &
+            fi
+            ;;
+        *"Wild Card"*)
+            local question=$(echo -e "What's the most controversial move?\nWhat would a disruptor do?\nUnconventional alternatives?" | \
+                rofi -dmenu -p "Wild Card" -mesg "Unfiltered, contrarian takes (dolphin-llama3)" \
+                -theme ~/.config/rofi/scripts/ai-menu/style.rasi)
+            if [[ -n "$question" ]]; then
+                ghostty -e "$mamf_cmd" ask wildcard "$question" &
+            fi
+            ;;
+        *"Deep Research"*)
+            # Research stays headless (no TUI equivalent yet)
+            local topic=$(echo -e "Market analysis for...\nCompetitor landscape\nIndustry trends\nBest practices for..." | \
+                rofi -dmenu -p "Research" -mesg "Deep research with Claude CLI + MCP tools" \
+                -theme ~/.config/rofi/scripts/ai-menu/style.rasi)
+            if [[ -n "$topic" ]]; then
+                ghostty -e bash -c "'$mamf_cmd' research '$topic'; echo ''; echo 'Press Enter to exit...'; read" &
+            fi
+            ;;
+        *"Query Knowledge Base"*)
+            # Knowledge query stays headless (no TUI equivalent yet)
+            local query=$(echo -e "pricing strategy\ncompetitor analysis\nmarket research" | \
+                rofi -dmenu -p "Search" -mesg "Search indexed documents (RAG)" \
+                -theme ~/.config/rofi/scripts/ai-menu/style.rasi)
+            if [[ -n "$query" ]]; then
+                ghostty -e bash -c "'$mamf_cmd' knowledge query '$query'; echo ''; echo 'Press Enter to exit...'; read" &
+            fi
+            ;;
+        *"Session History"*)
+            # Session history stays headless
+            ghostty -e bash -c "'$mamf_cmd' session list; echo ''; echo 'Press Enter to exit...'; read" &
+            ;;
+    esac
+}
+
+# Execute action based on selection
+execute_action() {
+    case "$1" in
+        *"Clipboard AI"*)
+            ~/.config/rofi/scripts/clipboard-ai/clipboard-ai &
+            ;;
+        *"Screenshot AI"*)
+            # Capture region and analyze with AI
+            tmpfile="/tmp/screenshot-ai-$(date +%s).png"
+            grim -g "$(slurp)" "$tmpfile"
+            if [[ -f "$tmpfile" ]]; then
+                ghostty -e bash -c "aichat -S -f '$tmpfile' 'Analyze this screenshot. What do you see? If it contains code, errors, or UI elements, explain them in detail.'; echo ''; echo 'Press Enter to exit...'; read"
+            fi
+            ;;
+        *"MCP Assistant"*)
+            ghostty -e bash -c 'echo "MCP Assistant (Gemini 2.5 Pro + Tools)"; echo "Type your queries. Use Ctrl+C to exit."; echo ""; aichat -S' &
+            ;;
+        *"AIChat"*)
+            aichat_choice="$(build_aichat_menu | submenu_rofi_cmd "AIChat" "Select model/mode")"
+            [[ -n "$aichat_choice" ]] && execute_aichat_action "$aichat_choice"
+            ;;
+        *"Open Interpreter"*)
+            interpreter_choice="$(build_interpreter_menu | submenu_rofi_cmd "Open Interpreter" "Select profile")"
+            [[ -n "$interpreter_choice" ]] && execute_interpreter_action "$interpreter_choice"
+            ;;
+        *"Ollama Chat"*)
+            ghostty -e aichat -m ollama:llama3.2 &
+            ;;
+        *"Claude Code"*)
+            claude_choice="$(build_claude_main_menu | submenu_rofi_cmd "Claude Code" "Select action")"
+            [[ -n "$claude_choice" ]] && execute_claude_action "$claude_choice"
+            ;;
+        *"AI Council"*)
+            council_choice="$(build_council_menu | submenu_rofi_cmd "AI Council" "7 AI advisors for diverse perspectives")"
+            [[ -n "$council_choice" ]] && execute_council_action "$council_choice"
+            ;;
+    esac
+}
+
+# Execute AIChat action
+execute_aichat_action() {
+    case "$1" in
+        *"Gemini 2.5 Pro"*)
+            ghostty -e aichat -m gemini:gemini-2.5-pro &
+            ;;
+        *"Gemini 2.5 Flash"*)
+            ghostty -e aichat -m gemini:gemini-2.5-flash &
+            ;;
+        *"Shell Mode"*)
+            ghostty -e aichat -e &
+            ;;
+        *"Web Search"*)
+            query=$(echo -e "Arch Linux news\nHyprland tips\nLatest tech news" | \
+                rofi -dmenu -p "Search" -mesg "Enter web search query" \
+                -theme ~/.config/rofi/scripts/ai-menu/style.rasi)
+            if [[ -n "$query" ]]; then
+                ghostty -e bash -c "aichat -S 'Search the web for: $query'" &
+            fi
+            ;;
+        *"Memory Query"*)
+            ghostty -e bash -c 'echo "Memory Graph Query"; aichat -S "Read my memory graph and summarize what you know about me"' &
+            ;;
+    esac
+}
+
+# Execute Open Interpreter action
+execute_interpreter_action() {
+    case "$1" in
+        *"Default"*)
+            ghostty -e interpreter &
+            ;;
+        *"Fast"*)
+            ghostty -e interpreter -p fast &
+            ;;
+        *"Coding"*)
+            ghostty -e interpreter -p coding &
+            ;;
+        *"YOLO"*)
+            ghostty -e interpreter -p yolo &
+            ;;
+    esac
+}
+
+# Main execution
+chosen="$(build_menu | rofi_cmd)"
+
+if [[ -n "$chosen" ]]; then
+    execute_action "$chosen"
+fi

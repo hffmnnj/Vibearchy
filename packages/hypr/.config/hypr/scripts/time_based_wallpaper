@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+#
+# Time-Based Wallpaper Setter
+# Automatically selects and sets wallpapers based on time of day
+#
+# Time Periods:
+#   Morning:   06:00 - 12:00
+#   Afternoon: 12:00 - 18:00
+#   Evening:   18:00 - 22:00
+#   Night:     22:00 - 06:00
+#
+# Directory Structure:
+#   ~/.config/hypr/walls/
+#   ├── morning/      (optional - morning wallpapers)
+#   ├── afternoon/    (optional - afternoon wallpapers)
+#   ├── evening/      (optional - evening wallpapers)
+#   ├── night/        (optional - night wallpapers)
+#   └── *.{jpg,png}   (fallback - all wallpapers)
+#
+# If time-specific directories don't exist, falls back to random from all wallpapers
+
+WALLPAPER_DIR="$HOME/.config/hypr/walls"
+CURRENT_HOUR=$(date +%H)
+
+# Determine time period based on current hour
+if [ "$CURRENT_HOUR" -ge 6 ] && [ "$CURRENT_HOUR" -lt 12 ]; then
+    TIME_PERIOD="morning"
+elif [ "$CURRENT_HOUR" -ge 12 ] && [ "$CURRENT_HOUR" -lt 18 ]; then
+    TIME_PERIOD="afternoon"
+elif [ "$CURRENT_HOUR" -ge 18 ] && [ "$CURRENT_HOUR" -lt 22 ]; then
+    TIME_PERIOD="evening"
+else
+    TIME_PERIOD="night"
+fi
+
+# Try to select from time-specific directory first
+TIME_DIR="$WALLPAPER_DIR/$TIME_PERIOD"
+if [ -d "$TIME_DIR" ] && [ "$(ls -A "$TIME_DIR" 2>/dev/null)" ]; then
+    # Select random wallpaper from time-specific directory
+    WALLPAPER=$(fd --base-directory "$TIME_DIR" --type f . | shuf -n 1)
+    WALLPAPER="$TIME_DIR/$WALLPAPER"
+    SOURCE="time-based ($TIME_PERIOD)"
+else
+    # Fallback to random wallpaper from main directory
+    WALLPAPER=$(fd --base-directory "$WALLPAPER_DIR" --type f --max-depth 1 . | shuf -n 1)
+    WALLPAPER="$WALLPAPER_DIR/$WALLPAPER"
+    SOURCE="random (no $TIME_PERIOD wallpapers found)"
+fi
+
+# Validate wallpaper exists
+if [ ! -f "$WALLPAPER" ]; then
+    notify-send "Wallpaper Error" "No wallpapers found in $WALLPAPER_DIR" --app-name=Wallpaper
+    exit 1
+fi
+
+# Set wallpaper using appropriate backend
+if pgrep -x "hyprpaper" >/dev/null; then
+    # Fixed: Use correct hyprpaper commands
+    hyprctl hyprpaper preload "$WALLPAPER"
+    hyprctl hyprpaper wallpaper ",$WALLPAPER" && \
+        notify-send "Wallpaper Changed" "$SOURCE\n$(basename "$WALLPAPER")" -i "$WALLPAPER" --app-name=Wallpaper
+elif pgrep -x "swww-daemon" >/dev/null; then
+    swww img "$WALLPAPER" \
+        --transition-type grow \
+        --transition-pos center \
+        --transition-duration 1 \
+        --transition-fps 60 \
+        --transition-step 90 && \
+        notify-send "Wallpaper Changed" "$SOURCE\n$(basename "$WALLPAPER")" -i "$WALLPAPER" --app-name=Wallpaper
+else
+    notify-send "Wallpaper Error" "No wallpaper backend running (hyprpaper/swww-daemon)" --app-name=Wallpaper
+    exit 1
+fi

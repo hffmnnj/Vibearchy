@@ -1,0 +1,68 @@
+#!/usr/bin/bash
+
+# Rate limiting: prevent rapid-fire wallpaper changes
+LOCKFILE="/tmp/wallpaper_change.lock"
+COOLDOWN=1  # seconds between changes
+
+# Check if we're in cooldown period
+if [ -f "$LOCKFILE" ]; then
+  LAST_CHANGE=$(cat "$LOCKFILE")
+  CURRENT_TIME=$(date +%s)
+  TIME_DIFF=$((CURRENT_TIME - LAST_CHANGE))
+
+  if [ $TIME_DIFF -lt $COOLDOWN ]; then
+    notify-send "Wallpaper Changer" "Please wait, cooling down..." --urgency=low --app-name=Wallpaper
+    exit 0
+  fi
+fi
+
+# Update lockfile
+date +%s > "$LOCKFILE"
+
+WALLPAPER_DIR="$HOME/.config/hypr/walls"
+
+# Get random wallpaper
+random=$(fd --base-directory "$WALLPAPER_DIR" --type f . | shuf -n 1)
+
+if [ -z "$random" ]; then
+  notify-send "Wallpaper Error" "No wallpapers found in $WALLPAPER_DIR" --urgency=critical --app-name=Wallpaper
+  exit 1
+fi
+
+WALLPAPER="$WALLPAPER_DIR/$random"
+
+# Check if wallpaper daemon is running, start if needed
+if ! pgrep -x "hyprpaper" >/dev/null && ! pgrep "swww-daemon" >/dev/null; then
+  notify-send "Starting wallpaper daemon..." --urgency=low --app-name=Wallpaper
+  # Try to start swww as it's more reliable
+  swww-daemon &
+  sleep 0.5
+fi
+
+# Change wallpaper using available daemon
+if pgrep -x "hyprpaper" >/dev/null; then
+  if hyprctl hyprpaper preload "$WALLPAPER" && hyprctl hyprpaper wallpaper ",$WALLPAPER"; then
+    notify-send "Wallpaper Changed" -i "$WALLPAPER" --app-name=Wallpaper
+  else
+    notify-send "Wallpaper Error" "Failed to change wallpaper with hyprpaper" --urgency=critical --app-name=Wallpaper
+    rm -f "$LOCKFILE"
+    exit 1
+  fi
+elif pgrep "swww-daemon" >/dev/null; then
+  if swww img "$WALLPAPER" \
+    --transition-type grow \
+    --transition-pos center \
+    --transition-duration 1 \
+    --transition-fps 60 \
+    --transition-step 90; then
+    notify-send "Wallpaper Changed" -i "$WALLPAPER" --app-name=Wallpaper
+  else
+    notify-send "Wallpaper Error" "Failed to change wallpaper with swww" --urgency=critical --app-name=Wallpaper
+    rm -f "$LOCKFILE"
+    exit 1
+  fi
+else
+  notify-send "Wallpaper Error" "No wallpaper daemon running!" --urgency=critical --app-name=Wallpaper
+  rm -f "$LOCKFILE"
+  exit 1
+fi

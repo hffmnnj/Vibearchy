@@ -1,0 +1,43 @@
+#!/bin/bash
+
+if [ "$1" = "--freeze" ]; then
+  extra_args="--freeze"
+fi
+
+# variables
+theme="$HOME/.config/rofi/scripts/screenshot/style.rasi"
+hyprshot="$HOME/.config/hypr/scripts/hyprshot"
+save_dir="$HOME/pictures/screenshots/pc"
+filename="captura-$(date +%Y-%m-%d-%s).png"
+command="$hyprshot -o $save_dir -f $filename $extra_args"
+
+# options to be displayed
+region="󰆞"
+output="󰍹"
+window="󰖯"
+ai="󰧑"
+folder=""
+
+selected="$(echo -e "$region\n$output\n$window\n$ai\n$folder" | rofi -dmenu -theme "${theme}")"
+case $selected in
+$region)
+  $command -m region
+  ;;
+$output)
+  $command -m output
+  ;;
+$window)
+  $command -m window
+  ;;
+$ai)
+  # AI Screenshot: Capture region and send to AI for analysis
+  tmpfile="/tmp/screenshot-ai-$(date +%s).png"
+  grim -g "$(slurp)" "$tmpfile"
+  if [[ -f "$tmpfile" ]]; then
+    ghostty -e bash -c "aichat -S -f '$tmpfile' 'Analyze this screenshot. What do you see? If it contains code, errors, or UI elements, explain them in detail.'; echo ''; echo 'Press Enter to exit...'; read"
+  fi
+  ;;
+$folder)
+  ~/.config/rofi/scripts/screenshot/screenshot_selection
+  ;;
+esac

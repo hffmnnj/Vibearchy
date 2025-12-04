@@ -1,0 +1,115 @@
+#!/bin/bash
+#
+# Vibearchy Theme Switcher
+# Switch between Vibearchy themes (celestial, midnight, dawn)
+#
+
+THEME_DIR="$HOME/.config/hypr/themes"
+ACTIVE_THEME="$HOME/.config/hypr/appearance/theme.conf"
+WAYBAR_THEME="$HOME/.config/waybar/theme/colors.css"
+
+# Available themes
+declare -A THEMES=(
+    ["celestial"]="Celestial - Sky blue (default)"
+    ["midnight"]="Midnight - Deep purple"
+    ["dawn"]="Dawn - Warm peach"
+)
+
+# Show usage
+show_usage() {
+    echo "Vibearchy Theme Switcher"
+    echo ""
+    echo "Usage: $(basename "$0") [theme]"
+    echo ""
+    echo "Available themes:"
+    for theme in "${!THEMES[@]}"; do
+        echo "  $theme - ${THEMES[$theme]}"
+    done
+    echo ""
+    echo "Current: $(get_current_theme)"
+}
+
+# Get current theme
+get_current_theme() {
+    if [[ -f "$ACTIVE_THEME" ]]; then
+        grep -m1 "^# Vibearchy Theme:" "$ACTIVE_THEME" | sed 's/.*: //'
+    else
+        echo "celestial"
+    fi
+}
+
+# Generate Waybar CSS from Hyprland theme
+generate_waybar_theme() {
+    local theme_file="$1"
+    local output="$WAYBAR_THEME"
+
+    echo "/* Vibearchy Theme - Auto-generated from Hyprland theme */" > "$output"
+    echo "" >> "$output"
+
+    # Extract colors and convert to CSS format
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^\$([a-zA-Z]+)\ =\ rgb\(([a-f0-9]+)\) ]]; then
+            local name="${BASH_REMATCH[1]}"
+            local color="${BASH_REMATCH[2]}"
+            echo "@define-color $name #$color;" >> "$output"
+        fi
+    done < "$theme_file"
+}
+
+# Apply theme
+apply_theme() {
+    local theme="$1"
+    local theme_file="$THEME_DIR/vibearchy-$theme.conf"
+
+    if [[ ! -f "$theme_file" ]]; then
+        echo "Error: Theme '$theme' not found at $theme_file"
+        exit 1
+    fi
+
+    # Copy theme to active location
+    cp "$theme_file" "$ACTIVE_THEME"
+    echo "# Vibearchy Theme: $theme" >> "$ACTIVE_THEME"
+
+    # Generate Waybar theme
+    generate_waybar_theme "$theme_file"
+
+    # Reload Hyprland
+    hyprctl reload
+
+    # Reload Waybar
+    killall -SIGUSR2 waybar 2>/dev/null || true
+
+    echo "Theme '$theme' applied successfully!"
+}
+
+# List themes
+list_themes() {
+    echo "Available themes:"
+    for theme in "${!THEMES[@]}"; do
+        local marker=""
+        [[ "$theme" == "$(get_current_theme)" ]] && marker=" (active)"
+        echo "  $theme - ${THEMES[$theme]}$marker"
+    done
+}
+
+# Main
+case "$1" in
+    "")
+        show_usage
+        ;;
+    -l|--list)
+        list_themes
+        ;;
+    -c|--current)
+        get_current_theme
+        ;;
+    celestial|midnight|dawn)
+        apply_theme "$1"
+        ;;
+    *)
+        echo "Unknown theme: $1"
+        echo ""
+        show_usage
+        exit 1
+        ;;
+esac

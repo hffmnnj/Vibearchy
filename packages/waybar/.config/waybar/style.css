@@ -1,0 +1,330 @@
+/* Celestial Sky Blue Theme - Waybar */
+/* Original Vibearchy style */
+
+@import url("theme/colors.css");
+
+* {
+    font-family: "Maple Mono NF", "JetBrainsMono Nerd Font", monospace;
+    font-size: 13px;
+    min-height: 0;
+}
+
+/* Window - transparent background */
+window#waybar {
+    color: @text;
+    background: transparent;
+}
+
+window#waybar.hidden {
+    opacity: 0;
+}
+
+/* Base module styling */
+#battery,
+#cava,
+#custom-cava,
+#custom-clipboard,
+#custom-notifications,
+#custom-arch,
+#custom-gpu-usage,
+#custom-updates,
+#mode,
+#cpu,
+#memory,
+#disk,
+#custom-mullvad,
+#temperature,
+#custom-music,
+#custom-fans,
+#clock,
+#idle_inhibitor,
+#bluetooth,
+#custom-wf-recorder,
+#pulseaudio,
+#backlight,
+#network,
+#tray,
+#custom-power-menu,
+#language,
+#window,
+#custom-weather,
+#custom-weather.severe,
+#custom-weather.sunnyDay,
+#custom-weather.clearNight,
+#custom-weather.cloudyFoggyDay,
+#custom-weather.cloudyFoggyNight,
+#custom-weather.rainyDay,
+#custom-weather.rainyNight,
+#custom-weather.showyIcyDay,
+#custom-weather.snowyIcyNight,
+#custom-weather.default {
+    background-color: alpha(@base, 0.9);
+    padding: 0 10px;
+    margin: 2px 4px 5px 4px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 2px 0 alpha(@crust, 0.5);
+    border: 2px solid alpha(@sky, 0.3);
+    background-clip: padding-box;
+}
+
+/* Workspaces */
+#workspaces {
+    background-color: alpha(@base, 0.9);
+    border: 2px solid alpha(@sky, 0.3);
+    padding: 0 8px;
+    margin: 2px 4px 5px 4px;
+    box-shadow: 2px 2px 2px 0 alpha(@crust, 0.5);
+    border-radius: 10px;
+    background-clip: padding-box;
+}
+
+#workspaces * {
+    font-size: 13px;
+}
+
+#workspaces button {
+    border-radius: 8px;
+    margin: 4px 2px;
+    padding: 0 8px;
+    font-weight: bold;
+    min-width: 20px;
+    color: @subtext0;
+    transition: all 0.2s ease;
+    background: transparent;
+}
+
+#workspaces button label {
+    color: @subtext0;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+#workspaces button:hover {
+    background-color: @surface0;
+}
+
+#workspaces button:hover label {
+    color: @sky-bright;
+}
+
+#workspaces button.active {
+    padding: 0 12px;
+    margin: 5px 2px;
+    background: linear-gradient(135deg, @sky-dim 0%, @sky 50%, @sky-bright 100%);
+    box-shadow: 2px 2px 2px 0 alpha(@crust, 0.5);
+    border-radius: 8px;
+}
+
+#workspaces button.active label {
+    color: @crust;
+    font-weight: bold;
+}
+
+#workspaces button.urgent {
+    background-color: @red;
+}
+
+#workspaces button.urgent label {
+    color: @crust;
+}
+
+/* Individual Module Colors */
+#cpu {
+    color: @sky;
+}
+
+#memory {
+    color: @teal;
+}
+
+#disk {
+    color: @sapphire;
+}
+
+#temperature {
+    color: @peach;
+}
+
+#temperature.critical {
+    background-color: @red;
+    color: @crust;
+}
+
+/* VPN Status */
+#custom-mullvad.connected,
+#custom-mullvad.vpn-active {
+    color: @green;
+}
+
+#custom-mullvad.tailscale-active {
+    color: @teal;
+}
+
+#custom-mullvad.tailscale-only {
+    color: @sapphire;
+}
+
+#custom-mullvad.dns-only {
+    color: @sky;
+}
+
+#custom-mullvad.disconnected {
+    color: @red;
+}
+
+/* Battery */
+#battery {
+    color: @green;
+}
+
+#battery.warning {
+    color: @yellow;
+}
+
+#battery.critical {
+    color: @peach;
+}
+
+#battery.urgent {
+    color: @red;
+}
+
+#battery.charging,
+#battery.plugged {
+    background-color: @green;
+    color: @crust;
+}
+
+#battery.critical:not(.charging) {
+    background-color: @red;
+    color: @crust;
+    animation: blink 0.5s linear infinite alternate;
+}
+
+/* Network */
+#network {
+    color: @sky;
+}
+
+#network.disconnected {
+    background-color: @red;
+    color: @crust;
+}
+
+#network.linked {
+    background-color: @peach;
+    color: @crust;
+}
+
+/* Audio */
+#pulseaudio {
+    color: @mauve;
+}
+
+#pulseaudio.muted {
+    background-color: @red;
+    color: @crust;
+}
+
+#pulseaudio.source-muted {
+    background-color: @peach;
+    color: @crust;
+}
+
+/* Bluetooth */
+#bluetooth {
+    color: @sky;
+}
+
+/* Clock */
+#clock {
+    color: @lavender;
+}
+
+#clock.cl2 {
+    background: linear-gradient(135deg, @sky-dim 0%, @sky 50%, @sky-bright 100%);
+    font-weight: bold;
+    color: @crust;
+    border: none;
+}
+
+/* Notifications */
+#custom-notifications {
+    color: @yellow;
+}
+
+/* Updates */
+#custom-updates {
+    color: @teal;
+}
+
+/* Music Player */
+#custom-music {
+    background: linear-gradient(135deg, @sky-dim 0%, @sky 50%, @sky-bright 100%);
+    font-weight: bold;
+    color: @crust;
+    border: none;
+}
+
+/* Window Title */
+#window {
+    background: linear-gradient(135deg, @sky-dim 0%, @sky 50%, @sky-bright 100%);
+    font-weight: bold;
+    color: @crust;
+    border: none;
+}
+
+/* Cava visualizer */
+#custom-cava {
+    color: @sky;
+    border-radius: 12px;
+}
+
+/* Other modules */
+#custom-wf-recorder {
+    color: @red;
+}
+
+#custom-gpu-usage {
+    color: @teal;
+}
+
+#custom-power-menu {
+    color: @red;
+}
+
+#backlight {
+    color: @yellow;
+}
+
+#language {
+    color: @sky;
+}
+
+/* Tray */
+#tray {
+    padding: 0 8px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: @red;
+}
+
+/* Animations */
+@keyframes blink {
+    to {
+        background-color: alpha(@base, 0.9);
+        color: @red;
+    }
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}

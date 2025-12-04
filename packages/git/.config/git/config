@@ -1,0 +1,64 @@
+[include]
+  path = ~/.config/git/themes/catppuccin.gitconfig
+
+[includeIf "gitdir:~/dev/work/"]
+  path = ~/.config/git/config-work
+
+[includeIf "gitdir:~/dev/class/"]
+  path = ~/.config/git/config-class
+
+[safe]
+  directory = ~/dev
+
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+
+[init]
+  defaultBranch = main
+
+[protocol "file"]
+  allow = always
+
+[credential]
+  helper = libsecret
+
+[core]
+  editor = nvim
+  pager = delta
+  excludesfile = ~/.config/git/ignore
+
+[interactive]
+  diffFilter = delta
+
+[delta]
+  features = catppuccin-macchiato
+  decoration = true
+  side-by-side = false
+  true-color = always
+  hyperlinks = true
+  line-numbers = true
+
+[merge]
+  tool = nvimdiff
+  conflictstyle = diff3
+
+[diff]
+  colorMoved = default
+
+[pull]
+  rebase = false
+
+[commit]
+  template = ~/.config/git/gitmessage
+  gpgsign = true
+
+[gpg]
+  program = /sbin/gpg
+
+[alias]
+  aliases = config --get-regexp alias
+
+  lg = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'

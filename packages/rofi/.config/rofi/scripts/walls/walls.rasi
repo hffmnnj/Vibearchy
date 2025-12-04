@@ -1,0 +1,59 @@
+/* Wallpaper Selector Theme - Vibearchy v2 */
+@import "../../theme/vibearchy.rasi"
+
+window {
+    width: 950px;
+    height: 650px;
+}
+
+mainbox {
+    padding: 20px;
+}
+
+inputbar {
+    padding: 12px;
+    margin: 0 0 15px 0;
+}
+
+listview {
+    lines: 3;
+    columns: 5;
+    spacing: 12px;
+    scrollbar: true;
+    fixed-height: true;
+}
+
+scrollbar {
+    width: 6px;
+    handle-width: 6px;
+    border-radius: 3px;
+}
+
+element {
+    orientation: vertical;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+element-icon {
+    size: 150px;
+    border-radius: 8px;
+    horizontal-align: 0.5;
+}
+
+element-text {
+    horizontal-align: 0.5;
+    vertical-align: 0.5;
+    padding: 6px 0 0 0;
+    font: "JetBrainsMono Nerd Font 9";
+}
+
+element selected {
+    background-color: @selected;
+    border-radius: 10px;
+}
+
+element selected element-icon {
+    border: 2px solid @accent;
+    border-radius: 8px;
+}

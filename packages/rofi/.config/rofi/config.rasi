@@ -1,0 +1,85 @@
+/* Vibearchy Rofi Configuration */
+
+configuration {
+    /* General */
+    modi: "drun,run,filebrowser,window";
+    case-sensitive: false;
+    cycle: true;
+    scroll-method: 0;
+    normalize-match: true;
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+    font: "Maple Mono NF 11";
+    steal-focus: false;
+    hover-select: true;
+
+    /* Keybindings (Vim-style) */
+    kb-row-up: "Control+k,Up";
+    kb-row-down: "Control+j,Down";
+    kb-accept-entry: "Return,KP_Enter";
+    kb-remove-to-eol: "";
+    kb-mode-next: "Control+Tab";
+    kb-mode-previous: "Control+Shift+Tab";
+
+    /* Matching */
+    matching: "fuzzy";
+    tokenize: true;
+    sorting-method: "fzf";
+
+    /* Drun Settings */
+    drun-categories: "";
+    drun-match-fields: "name,generic,exec,categories,keywords";
+    drun-display-format: "{name}";
+    drun-show-actions: false;
+    drun-url-launcher: "xdg-open";
+    drun {
+        parse-user: true;
+        parse-system: true;
+    }
+
+    /* Run Settings */
+    run-command: "{cmd}";
+    run-shell-command: "{terminal} -e {cmd}";
+
+    /* Fallback Icons */
+    run,drun {
+        fallback-icon: "application-x-executable";
+    }
+
+    /* Window Switcher */
+    window-match-fields: "title,class,role,name,desktop";
+    window-format: "{w} · {c} · {t:0}";
+    window-thumbnail: false;
+
+    /* Display Labels */
+    display-window: " Windows";
+    display-run: " Run";
+    display-drun: " Apps";
+    display-filebrowser: " Files";
+
+    /* History */
+    disable-history: false;
+    max-history-size: 50;
+
+    /* Terminal */
+    terminal: "ghostty";
+
+    /* Misc */
+    sort: false;
+    threads: 0;
+    click-to-exit: true;
+
+    /* File Browser */
+    filebrowser {
+        directories-first: true;
+        sorting-method: "name";
+    }
+
+    /* Timeout */
+    timeout {
+        action: "kb-cancel";
+        delay: 0;
+    }
+}
+
+@theme "style"

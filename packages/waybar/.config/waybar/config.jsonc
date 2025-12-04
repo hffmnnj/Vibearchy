@@ -1,0 +1,133 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// Vibearchy Waybar Configuration
+// Modular status bar for Hyprland
+// ═══════════════════════════════════════════════════════════════════════════════
+
+[
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Primary Bar (Laptop Display)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    "include": [
+      "~/.config/waybar/modules/hyprland-workspaces.jsonc",
+      "~/.config/waybar/modules/custom-music.jsonc",
+      "~/.config/waybar/modules/custom-notifications.jsonc",
+      "~/.config/waybar/modules/custom-mullvad.jsonc",
+      "~/.config/waybar/modules/tray.jsonc",
+      "~/.config/waybar/modules/network.jsonc",
+      "~/.config/waybar/modules/cpu.jsonc",
+      "~/.config/waybar/modules/memory.jsonc",
+      "~/.config/waybar/modules/disk.jsonc",
+      "~/.config/waybar/modules/clock.jsonc",
+      "~/.config/waybar/modules/battery.jsonc",
+      "~/.config/waybar/modules/pulseaudio.jsonc"
+    ],
+
+    "name": "main",
+    "layer": "top",
+    "output": "eDP-1",
+    "position": "top",
+    "height": 48,
+    "mode": "dock",
+    "exclusive": true,
+    "passthrough": false,
+    "gtk-layer-shell": true,
+
+    "margin-top": 5,
+    "margin-left": 5,
+    "margin-right": 5,
+    "margin-bottom": 0,
+
+    "modules-left": [
+      "hyprland/workspaces"
+    ],
+    "modules-center": [
+      "custom/music"
+    ],
+    "modules-right": [
+      "cpu",
+      "memory",
+      "disk",
+      "tray",
+      "custom/mullvad",
+      "network",
+      "pulseaudio",
+      "battery",
+      "clock#cl1",
+      "custom/notifications"
+    ]
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Secondary Bar (External Monitor - DP-1)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    "include": [
+      "~/.config/waybar/modules/hyprland-workspaces.jsonc",
+      "~/.config/waybar/modules/custom-music.jsonc",
+      "~/.config/waybar/modules/clock.jsonc",
+      "~/.config/waybar/modules/network.jsonc",
+      "~/.config/waybar/modules/tray.jsonc"
+    ],
+
+    "name": "external-1",
+    "layer": "top",
+    "output": "DP-1",
+    "position": "top",
+    "height": 48,
+    "mode": "dock",
+    "exclusive": true,
+    "passthrough": false,
+    "gtk-layer-shell": true,
+
+    "margin-top": 5,
+    "margin-left": 5,
+    "margin-right": 5,
+    "margin-bottom": 0,
+
+    "modules-left": [
+      "hyprland/workspaces"
+    ],
+    "modules-center": [
+      "custom/music"
+    ],
+    "modules-right": [
+      "network",
+      "tray",
+      "clock#cl2"
+    ]
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Tertiary Bar (External Monitor - DP-3)
+  // ─────────────────────────────────────────────────────────────────────────────
+  {
+    "include": [
+      "~/.config/waybar/modules/hyprland-workspaces.jsonc",
+      "~/.config/waybar/modules/clock.jsonc"
+    ],
+
+    "name": "external-2",
+    "layer": "top",
+    "output": "DP-3",
+    "position": "top",
+    "height": 48,
+    "mode": "dock",
+    "exclusive": true,
+    "passthrough": false,
+    "gtk-layer-shell": true,
+
+    "margin-top": 5,
+    "margin-left": 5,
+    "margin-right": 5,
+    "margin-bottom": 0,
+
+    "modules-left": [
+      "hyprland/workspaces"
+    ],
+    "modules-center": [],
+    "modules-right": [
+      "clock#cl1"
+    ]
+  }
+]

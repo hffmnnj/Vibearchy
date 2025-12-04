@@ -1,0 +1,11 @@
+{
+  "custom/mullvad": {
+    "exec": "~/.config/waybar/scripts/vpn-status",
+    "return-type": "json",
+    "interval": 10,
+    "format": "{}",
+    "on-click": "~/.config/rofi/scripts/vpn-menu/vpn-menu",
+    "on-click-right": "mullvad-vpn",
+    "tooltip": true,
+  },
+}

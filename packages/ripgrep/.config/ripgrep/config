@@ -1,0 +1,37 @@
+# Vibearchy ripgrep config
+
+# Smart case (case-insensitive unless uppercase used)
+--smart-case
+
+# Show line numbers
+--line-number
+
+# Add spacing between matches in different files
+--heading
+
+# Show 2 lines of context
+--context=2
+
+# Follow symlinks
+--follow
+
+# Don't search hidden files by default (use --hidden to override)
+--no-hidden
+
+# Ignore common directories
+--glob=!.git/*
+--glob=!node_modules/*
+--glob=!.venv/*
+--glob=!__pycache__/*
+--glob=!*.min.js
+--glob=!*.min.css
+--glob=!package-lock.json
+--glob=!yarn.lock
+--glob=!pnpm-lock.yaml
+
+# Colors matching Celestial Sky Blue theme
+--colors=match:fg:cyan
+--colors=match:style:bold
+--colors=line:fg:white
+--colors=path:fg:blue
+--colors=path:style:bold

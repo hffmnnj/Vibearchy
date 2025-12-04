@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# VPN Status for Waybar
+# Shows combined status of Mullvad, Tailscale, and NextDNS
+
+# Check Mullvad
+mullvad_connected=false
+mullvad_info=""
+if mullvad status 2>/dev/null | grep -q "Connected"; then
+    mullvad_connected=true
+    mullvad_server=$(mullvad status | grep -oP '(?<=to ).*(?= in)' | head -1)
+    mullvad_country=$(mullvad status | grep -oP '(?<=in ).*' | head -1)
+    mullvad_info="Mullvad: $mullvad_server ($mullvad_country)"
+else
+    mullvad_info="Mullvad: Disconnected"
+fi
+
+# Check Tailscale
+tailscale_connected=false
+tailscale_info=""
+if tailscale status 2>/dev/null | head -1 | grep -qv "stopped"; then
+    tailscale_connected=true
+    tailscale_ip=$(tailscale ip -4 2>/dev/null)
+    tailscale_info="Tailscale: $tailscale_ip"
+else
+    tailscale_info="Tailscale: Off"
+fi
+
+# Check NextDNS
+nextdns_running=false
+nextdns_info=""
+if nextdns status 2>/dev/null | grep -q "running"; then
+    nextdns_running=true
+    nextdns_info="NextDNS: Active"
+else
+    nextdns_info="NextDNS: Inactive"
+fi
+
+# Build tooltip
+tooltip="$mullvad_info\n$tailscale_info\n$nextdns_info"
+
+# Determine icon and class
+if $mullvad_connected && $tailscale_connected; then
+    # Both VPN + Tailscale active (split tunnel)
+    icon="󰖂"
+    class="vpn-active"
+    text="$icon VPN+TS"
+elif $mullvad_connected; then
+    # VPN active
+    icon="󰖂"
+    class="vpn-active"
+    text="$icon VPN"
+elif $tailscale_connected && $nextdns_running; then
+    # Tailscale + NextDNS
+    icon="󰒒"
+    class="tailscale-active"
+    text="$icon TS"
+elif $tailscale_connected; then
+    # Only Tailscale
+    icon="󰒒"
+    class="tailscale-only"
+    text="$icon TS"
+elif $nextdns_running; then
+    # Only NextDNS
+    icon="󰇖"
+    class="dns-only"
+    text="$icon DNS"
+else
+    # Nothing active
+    icon="󰌿"
+    class="disconnected"
+    text="$icon OFF"
+fi
+
+# Output JSON for Waybar
+echo "{\"text\":\"$text\",\"tooltip\":\"$tooltip\",\"class\":\"$class\"}"

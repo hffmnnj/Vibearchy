@@ -1,0 +1,16 @@
+/* Wallpaper Menu (Legacy) Theme - Vibearchy */
+@import "../../theme/vibearchy.rasi"
+
+window {
+    width: 900px;
+    height: 700px;
+}
+
+listview {
+    lines: 10;
+    columns: 3;
+}
+
+element-icon {
+    size: 128px;
+}

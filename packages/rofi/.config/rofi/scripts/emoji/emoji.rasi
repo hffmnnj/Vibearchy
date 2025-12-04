@@ -1,0 +1,15 @@
+/* Emoji Picker Theme - Vibearchy */
+@import "../../theme/vibearchy.rasi"
+
+window {
+    width: 500px;
+}
+
+listview {
+    lines: 8;
+    columns: 1;
+}
+
+element-icon {
+    size: 32px;
+}

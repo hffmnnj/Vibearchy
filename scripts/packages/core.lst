@@ -1,0 +1,33 @@
+# Vibearchy Core System Packages
+# Base utilities required for the system to function
+
+# Stow for dotfile management
+stow
+
+# Shell and prompt
+fish
+starship
+
+# Terminal emulators
+ghostty
+kitty
+
+# Core utilities
+bat
+eza
+fd
+ripgrep
+fzf
+zoxide
+
+# Git tools
+git
+git-delta
+lazygit
+
+# Text editor
+neovim
+
+# System monitoring
+btop
+fastfetch

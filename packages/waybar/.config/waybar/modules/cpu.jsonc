@@ -1,0 +1,8 @@
+{
+  "cpu": {
+    "on-click": "pypr toggle monitor",
+    "format": "󰻠 {usage}%",
+    "tooltip": false,
+    "interval": 2,
+  },
+}

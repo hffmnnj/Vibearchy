@@ -1,0 +1,128 @@
+# ====================================
+# Pyprland Configuration
+# ====================================
+# Pyprland adds useful extensions to Hyprland
+# https://github.com/hyprland-community/pyprland
+#
+# Scratchpads: Floating windows that toggle on/off with a keybind
+# - Useful for quick access to utilities without cluttering workspaces
+# - Windows slide in from screen edges with animations
+# - Remember their position and size
+# - Can auto-hide when unfocused
+#
+# Keybindings (see binds.conf):
+# - Super + ` (grave): Terminal scratchpad
+# - Super + V: Volume control
+# - Super + B: Bluetooth manager
+# - Super + C: Calculator
+# - Super + M: System monitor
+# - Super + G: Lazygit (Git TUI)
+# - Super + D: Lazydocker (Docker TUI)
+# - Super + Shift + A: Atac (API testing TUI)
+# - Super + I: Quick notes
+
+[pyprland]
+plugins = ["scratchpads", "magnify"]  # Enable scratchpads and screen magnification
+
+# ====================================
+# Scratchpad Definitions
+# ====================================
+# Each scratchpad is a named window configuration
+#
+# Common options:
+# - command: Program to run (only launched when first toggled)
+# - position: X Y position as percentage ("10% 5%" = 10% from left, 5% from top)
+# - size: Width Height as percentage ("80% 60%" = 80% screen width, 60% height)
+# - animation: Slide direction (fromTop, fromBottom, fromLeft, fromRight)
+# - margin: Pixels between window edge and screen edge
+# - unfocus: "hide" to auto-hide when window loses focus
+# - lazy: true = don't launch until first toggle (faster startup)
+
+[scratchpads.volume]
+command = "pavucontrol"  # Audio mixer (PulseAudio Volume Control GUI)
+position = "1% 8%"         # Top-left corner
+unfocus = "hide"           # Hide when clicking outside
+lazy = true                # Don't launch until needed
+
+[scratchpads.bluetooth]
+command = "ghostty --class=com.ghostty-bluetooth -e bluetoothctl"  # Bluetooth manager (bluetoothctl CLI)
+position = "1% 8%"         # Same position as volume (they won't overlap)
+unfocus = "hide"           # Hide when clicking outside
+lazy = true                # Don't launch until needed
+
+[scratchpads.wifi]
+command = "iwgtk"          # WiFi manager GUI
+animation = "fromRight"    # Slide in from right edge
+margin = 20                # 20px from edge
+lazy = true                # Don't launch until needed
+
+[scratchpads.network]
+command = "nm-connection-editor"  # Network connection editor
+animation = "fromRight"    # Slide in from right edge
+margin = 20                # 20px from edge
+lazy = true                # Don't launch until needed
+
+[scratchpads.term]
+command = "ghostty --class=com.ghostty-scratchpad"  # Dedicated terminal scratchpad
+position = "10% 10%"       # Centered but offset from edges
+size = "80% 80%"           # Large window (80% of screen)
+animation = "fromTop"      # Slide down from top (like dropdown terminal)
+unfocus = "hide"           # Hide when clicking outside
+lazy = true                # Don't launch until needed
+
+[scratchpads.calculator]
+command = "qalculate-gtk"  # Scientific calculator
+animation = "fromTop"      # Slide down from top
+margin = 50                # 50px from top edge
+unfocus = "hide"           # Hide when clicking outside
+lazy = true                # Don't launch until needed
+
+[scratchpads.monitor]
+command = "ghostty --class=com.ghostty-monitor -e btop"  # System monitor (btop)
+position = "5% 5%"         # Near top-left but with margin
+size = "90% 90%"           # Nearly fullscreen
+animation = "fromBottom"   # Slide up from bottom
+unfocus = "hide"           # Hide when clicking outside
+lazy = true                # Don't launch until needed
+
+# ====================================
+# Development Scratchpads
+# ====================================
+# Quick access to development tools for efficient workflow
+
+[scratchpads.lazygit]
+command = "ghostty --class=com.ghostty-lazygit -e lazygit"  # Git TUI
+position = "5% 5%"         # Near top-left with margin
+size = "90% 90%"           # Nearly fullscreen for full git interface
+animation = "fromTop"      # Slide down from top
+unfocus = "hide"           # Hide when clicking outside
+lazy = true                # Don't launch until needed
+
+[scratchpads.lazydocker]
+command = "ghostty --class=com.ghostty-lazydocker -e lazydocker"  # Docker TUI
+position = "5% 5%"         # Near top-left with margin
+size = "90% 90%"           # Nearly fullscreen for container management
+animation = "fromTop"      # Slide down from top
+unfocus = "hide"           # Hide when clicking outside
+lazy = true                # Don't launch until needed
+
+[scratchpads.atac]
+command = "ghostty --class=com.ghostty-atac -e atac"  # API testing TUI
+position = "5% 5%"         # Near top-left with margin
+size = "90% 90%"           # Nearly fullscreen for API testing interface
+animation = "fromTop"      # Slide down from top
+unfocus = "hide"           # Hide when clicking outside
+lazy = true                # Don't launch until needed
+
+# ====================================
+# Quick Access Scratchpads
+# ====================================
+
+[scratchpads.notes]
+command = "ghostty --class=com.ghostty-notes -e nvim -c 'cd ~/Documents/notes' ~/Documents/notes/quick-notes.md"
+position = "10% 10%"       # Centered with margin
+size = "80% 80%"           # Large window for comfortable writing
+animation = "fromTop"      # Slide down from top
+unfocus = "hide"           # Hide when clicking outside
+lazy = true                # Don't launch until needed
+

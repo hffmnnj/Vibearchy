@@ -1,0 +1,20 @@
+/* Emoji Picker Theme - Vibearchy */
+
+configuration {
+    modi: "emoji";
+    show: "emoji";
+    emoji-mode: "copy";
+    display-emoji: "Emojis";
+    show-icons: true;
+}
+
+@import "../../theme/vibearchy.rasi"
+
+window {
+    width: 500px;
+}
+
+listview {
+    lines: 8;
+    columns: 1;
+}

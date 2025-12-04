@@ -1,0 +1,15 @@
+/* Power Menu (Legacy) Theme - Vibearchy */
+@import "../../theme/vibearchy.rasi"
+
+window {
+    width: 400px;
+}
+
+listview {
+    lines: 6;
+    columns: 1;
+}
+
+element-icon {
+    size: 28px;
+}

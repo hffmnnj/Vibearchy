@@ -1,0 +1,20 @@
+/* Keybindings Menu Theme - Vibearchy */
+@import "../../theme/vibearchy.rasi"
+
+window {
+    width: 550px;
+}
+
+listview {
+    lines: 20;
+    columns: 1;
+    scrollbar: true;
+}
+
+element {
+    padding: 8px 12px;
+}
+
+element-text {
+    font: "Maple Mono NF 10";
+}

@@ -1,0 +1,8 @@
+{
+  "memory": {
+    "format": "󰍛 {}%",
+    "on-click": "pypr toggle monitor",
+    "tooltip": true,
+    "interval": 2,
+  },
+}

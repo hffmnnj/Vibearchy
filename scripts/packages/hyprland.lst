@@ -1,0 +1,39 @@
+# Vibearchy Hyprland Ecosystem
+# Window manager and related tools
+
+# Core Hyprland
+hyprland
+
+# Status bar
+waybar
+
+# Application launcher
+rofi-wayland
+
+# Notification daemon
+swaync
+
+# Wallpaper utilities
+swww
+hyprpaper
+
+# Lock screen and idle
+hyprlock
+hypridle
+
+# Hyprland plugins
+pyprland
+
+# Screenshot tools
+grim
+slurp
+hyprshot
+swappy
+
+# Clipboard
+wl-clipboard
+cliphist
+
+# Screen recording (optional)
+# obs-studio
+# wf-recorder

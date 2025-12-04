@@ -1,0 +1,15 @@
+/* SSH Menu Theme - Vibearchy */
+@import "../../theme/vibearchy.rasi"
+
+window {
+    width: 450px;
+}
+
+listview {
+    lines: 10;
+    columns: 1;
+}
+
+element-icon {
+    size: 24px;
+}

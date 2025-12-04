@@ -1,0 +1,30 @@
+# Vibearchy Rofi Menu Dependencies
+# Required for all Rofi menu scripts to function
+
+# Clipboard
+wl-clipboard
+cliphist
+
+# Screenshots
+grim
+slurp
+swappy
+
+# OCR for clipboard AI
+tesseract
+tesseract-data-eng
+
+# Wallpaper daemon
+swww
+
+# Notifications
+libnotify
+
+# Network tools for SSH/VPN menus
+openssh
+cloudflared-bin
+
+# Optional extras
+# mullvad-vpn
+# tailscale
+# nextdns

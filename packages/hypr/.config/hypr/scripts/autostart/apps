@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Apps
+feishin &
+"/opt/Mullvad VPN/mullvad-vpn" &
+
+# Terminal Apps
+# kitty --class btop btop &
+# kitty --class nvtop nvtop &
+ghostty --gtk-single-instance=true --quit-after-last-window-closed=false --initial-window=false &

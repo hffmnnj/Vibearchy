@@ -1,0 +1,15 @@
+/* Theme Selector Theme - Vibearchy */
+@import "../../theme/vibearchy.rasi"
+
+window {
+    width: 350px;
+}
+
+listview {
+    lines: 3;
+    columns: 1;
+}
+
+element-icon {
+    size: 28px;
+}

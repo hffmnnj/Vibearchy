@@ -1,0 +1,184 @@
+# ╔══════════════════════════════════════════════════════════════════════════╗
+# ║                    Vibearchy Ghostty Configuration                        ║
+# ║                      Celestial Sky Blue Theme                             ║
+# ╚══════════════════════════════════════════════════════════════════════════╝
+
+# ============================================================================
+# Theme
+# ============================================================================
+theme = celestial
+
+# ============================================================================
+# Font Configuration
+# ============================================================================
+font-family = Maple Mono NF
+font-size = 14
+
+# OpenType features for Maple Mono
+font-feature = +cv01
+font-feature = +cv02
+font-feature = +ss01
+font-feature = +ss02
+font-feature = +ss03
+font-feature = +ss05
+font-feature = +ss07
+font-feature = +liga
+font-feature = +calt
+
+# Cell adjustments for better readability
+adjust-cell-height = 25%
+
+# Font rendering (Linux/FreeType)
+freetype-load-flags = no-hinting
+
+# ============================================================================
+# Cursor
+# ============================================================================
+cursor-style = block
+cursor-style-blink = true
+cursor-click-to-move = true
+
+# ============================================================================
+# Window Configuration
+# ============================================================================
+window-padding-x = 12
+window-padding-y = 12
+window-padding-balance = true
+window-padding-color = extend
+
+# Transparency and blur
+background-opacity = 0.92
+background-blur = 25
+
+# Window behavior
+window-decoration = auto
+window-inherit-working-directory = true
+window-inherit-font-size = true
+confirm-close-surface = false
+resize-overlay = after-first
+resize-overlay-position = bottom-right
+
+# Initial size (columns x rows)
+window-width = 120
+window-height = 35
+
+# GTK/Linux specific
+gtk-single-instance = true
+window-theme = ghostty
+gtk-titlebar = false
+gtk-wide-tabs = false
+
+# macOS specific
+macos-titlebar-style = hidden
+macos-option-as-alt = true
+
+# ============================================================================
+# Tab Bar
+# ============================================================================
+window-show-tab-bar = auto
+window-new-tab-position = end
+
+# ============================================================================
+# Shell Configuration
+# ============================================================================
+command = fish
+shell-integration = detect
+shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo
+
+# Working directory
+working-directory = inherit
+
+# ============================================================================
+# Clipboard & Security
+# ============================================================================
+clipboard-read = allow
+clipboard-write = allow
+clipboard-trim-trailing-spaces = true
+clipboard-paste-protection = true
+clipboard-paste-bracketed-safe = true
+copy-on-select = clipboard
+
+# ============================================================================
+# Mouse & Selection
+# ============================================================================
+mouse-hide-while-typing = true
+mouse-scroll-multiplier = 3
+mouse-shift-capture = false
+
+selection-foreground = 1e1e2e
+selection-background = 7dcfff
+
+# Right-click behavior
+right-click-action = context-menu
+
+# ============================================================================
+# Scrollback & Performance
+# ============================================================================
+# 50MB scrollback (~100k lines)
+scrollback-limit = 50000000
+
+# Scroll behavior
+scroll-to-bottom = keystroke
+
+# Performance: disable vsync for lower input latency
+window-vsync = false
+
+# ============================================================================
+# Links & URLs
+# ============================================================================
+link-url = true
+
+# ============================================================================
+# Quick Terminal (Dropdown)
+# ============================================================================
+# Activate with: ghostty +quick-terminal
+quick-terminal-position = top
+quick-terminal-size = 100%,50%
+quick-terminal-animation-duration = 0.15
+quick-terminal-autohide = true
+
+# Wayland layer settings
+gtk-quick-terminal-layer = overlay
+
+# ============================================================================
+# Auto-update
+# ============================================================================
+auto-update = check
+auto-update-channel = stable
+
+# ============================================================================
+# Default Keybindings Reference
+# ============================================================================
+# Ghostty comes with excellent defaults:
+#
+# Tabs:
+#   Ctrl+Shift+T        New tab
+#   Ctrl+Tab            Next tab
+#   Ctrl+Shift+Tab      Previous tab
+#   Ctrl+Shift+W        Close tab
+#   Alt+1-8             Go to tab N
+#
+# Splits:
+#   Ctrl+Shift+Enter    New split (auto direction)
+#   Ctrl+Shift+O        New split right
+#   Ctrl+Shift+S        New split down
+#   Ctrl+Shift+H/J/K/L  Navigate splits (vim-style)
+#   Ctrl+Shift+Arrows   Resize splits
+#   Ctrl+Shift+E        Equalize splits
+#   Ctrl+Shift+Z        Toggle split zoom
+#
+# Scrolling:
+#   Shift+PageUp/Down   Scroll page
+#   Shift+Home/End      Scroll to top/bottom
+#
+# Font:
+#   Ctrl+=              Increase font size
+#   Ctrl+-              Decrease font size
+#   Ctrl+0              Reset font size
+#
+# Other:
+#   F11                 Toggle fullscreen
+#   Ctrl+Shift+C        Copy
+#   Ctrl+Shift+V        Paste
+#   Ctrl+Shift+R        Reload config
+#   Ctrl+Shift+,        Open config

@@ -1,0 +1,15 @@
+# Vibearchy AI Tools
+# CLI tools for AI-assisted workflows
+
+# Ollama - local LLM runtime
+ollama
+
+# AIChat - multi-provider CLI
+aichat-bin
+
+# Note: These require special installation
+# claude-code-cli (npm install -g @anthropic-ai/claude-code)
+# open-interpreter (pip install open-interpreter)
+
+# Optional: LM Studio for GUI
+# lmstudio

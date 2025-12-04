@@ -1,0 +1,24 @@
+# Vibearchy Privacy & Security
+# Tools that respect your privacy
+
+# Browser
+zen-browser-bin
+
+# VPN
+mullvad-vpn
+tailscale
+
+# DNS
+nextdns
+
+# Password manager
+bitwarden
+
+# Encrypted messaging
+signal-desktop
+
+# Email
+tutanota-desktop
+
+# Disk encryption
+veracrypt

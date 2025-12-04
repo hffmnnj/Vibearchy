@@ -1,0 +1,34 @@
+# Vibearchy Development Tools
+# For software development workflows
+
+# Code editors
+zed
+neovim
+
+# Terminal multiplexer
+tmux
+
+# Version control
+git
+git-delta
+lazygit
+
+# Container tools
+docker
+lazydocker
+
+# Language support (uncomment as needed)
+# nodejs
+# npm
+# python
+# python-pip
+# rustup
+# go
+
+# Build tools
+base-devel
+cmake
+make
+
+# Shell history
+atuin

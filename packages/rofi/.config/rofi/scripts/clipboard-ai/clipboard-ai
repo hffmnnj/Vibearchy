@@ -1,0 +1,145 @@
+#!/bin/bash
+
+# Clipboard AI - Smart clipboard processing with AI
+# Detects content type and offers relevant AI actions
+
+# Get clipboard content
+content="$(wl-paste 2>/dev/null)"
+content_type="text"
+
+# Check if clipboard is empty
+if [[ -z "$content" ]]; then
+    # Check for image
+    if wl-paste -l 2>/dev/null | grep -q "image"; then
+        content_type="image"
+        content="[Image in clipboard]"
+    else
+        notify-send "Clipboard AI" "Clipboard is empty"
+        exit 0
+    fi
+else
+    # Detect content type
+    if [[ "$content" =~ ^https?:// ]]; then
+        content_type="url"
+    elif [[ "$content" =~ (function|def |class |import |const |let |var |async |await |return |if |for |while ) ]]; then
+        content_type="code"
+    fi
+fi
+
+# Truncate preview for display
+preview="${content:0:50}"
+[[ ${#content} -gt 50 ]] && preview="${preview}..."
+
+# Build menu based on type
+case "$content_type" in
+    url)
+        options="󰖟 Summarize URL\n󰍉 Extract key points\n󰆏 Convert to markdown link"
+        ;;
+    code)
+        options="󰅩 Explain code\n󰁨 Find bugs\n󰑮 Optimize\n󰆏 Add comments\n󰊄 Convert to another language"
+        ;;
+    image)
+        options="󰧑 Analyze image\n󰊄 Extract text (OCR)\n󰆏 Describe for alt-text"
+        ;;
+    *)
+        options="󰊄 Summarize\n󰗊 Translate\n󰅩 Rewrite professionally\n󰆏 Fix grammar\n󰑮 Make concise"
+        ;;
+esac
+
+# Show menu
+theme="$HOME/.config/rofi/scripts/ai-menu/style.rasi"
+selected="$(echo -e "$options" | rofi -dmenu -p "Clipboard AI" -mesg "Type: $content_type | $preview" -theme "$theme")"
+
+[[ -z "$selected" ]] && exit 0
+
+# Helper function for safe content passing
+safe_content() {
+    # Escape single quotes for bash
+    echo "$content" | sed "s/'/'\\\\''/g"
+}
+
+# Execute action
+case "$selected" in
+    *"Summarize URL"*)
+        ghostty -e bash -c "aichat -S 'Summarize this URL concisely: $content'; echo ''; echo 'Press Enter to exit...'; read"
+        ;;
+    *"Extract key points"*)
+        ghostty -e bash -c "aichat -S 'Extract the key points from this URL as bullet points: $content'; echo ''; echo 'Press Enter to exit...'; read"
+        ;;
+    *"Convert to markdown"*)
+        # Fetch title and create markdown link
+        result="[$content]($content)"
+        echo "$result" | wl-copy
+        notify-send "Clipboard AI" "Markdown link copied!"
+        ;;
+    *"Explain code"*)
+        ghostty -e bash -c "echo '$(safe_content)' | aichat 'Explain this code step by step:'; echo ''; echo 'Press Enter to exit...'; read"
+        ;;
+    *"Find bugs"*)
+        ghostty -e bash -c "echo '$(safe_content)' | aichat 'Find potential bugs, issues, or improvements in this code:'; echo ''; echo 'Press Enter to exit...'; read"
+        ;;
+    *"Optimize"*)
+        result=$(echo "$content" | aichat "Optimize this code for performance and readability. Return only the optimized code without explanation:")
+        echo "$result" | wl-copy
+        notify-send "Clipboard AI" "Optimized code copied to clipboard!"
+        ;;
+    *"Add comments"*)
+        result=$(echo "$content" | aichat "Add clear, helpful comments to this code. Return the commented code:")
+        echo "$result" | wl-copy
+        notify-send "Clipboard AI" "Commented code copied to clipboard!"
+        ;;
+    *"Convert to another"*)
+        lang=$(echo -e "Python\nJavaScript\nTypeScript\nRust\nGo\nBash" | rofi -dmenu -p "Target Language" -theme "$theme")
+        if [[ -n "$lang" ]]; then
+            result=$(echo "$content" | aichat "Convert this code to $lang. Return only the converted code:")
+            echo "$result" | wl-copy
+            notify-send "Clipboard AI" "Code converted to $lang and copied!"
+        fi
+        ;;
+    *"Analyze image"*)
+        wl-paste > /tmp/clipboard-image.png
+        ghostty -e bash -c "aichat -S -f /tmp/clipboard-image.png 'Analyze this image in detail. Describe what you see.'; echo ''; echo 'Press Enter to exit...'; read"
+        ;;
+    *"Extract text"*)
+        wl-paste > /tmp/clipboard-image.png
+        text=$(tesseract /tmp/clipboard-image.png - 2>/dev/null)
+        if [[ -n "$text" ]]; then
+            echo "$text" | wl-copy
+            notify-send "Clipboard AI" "Text extracted to clipboard!"
+        else
+            notify-send "Clipboard AI" "No text found in image"
+        fi
+        ;;
+    *"Describe for alt"*)
+        wl-paste > /tmp/clipboard-image.png
+        result=$(aichat -f /tmp/clipboard-image.png "Write a concise alt-text description for this image, suitable for accessibility. Keep it under 125 characters.")
+        echo "$result" | wl-copy
+        notify-send "Clipboard AI" "Alt-text copied to clipboard!"
+        ;;
+    *"Summarize"*)
+        ghostty -e bash -c "echo '$(safe_content)' | aichat 'Summarize this text concisely in 2-3 sentences:'; echo ''; echo 'Press Enter to exit...'; read"
+        ;;
+    *"Translate"*)
+        lang=$(echo -e "English\nSpanish\nFrench\nGerman\nJapanese\nChinese" | rofi -dmenu -p "Target Language" -theme "$theme")
+        if [[ -n "$lang" ]]; then
+            result=$(echo "$content" | aichat "Translate this to $lang. Return only the translation:")
+            echo "$result" | wl-copy
+            notify-send "Clipboard AI" "Translated to $lang and copied!"
+        fi
+        ;;
+    *"Rewrite professionally"*)
+        result=$(echo "$content" | aichat "Rewrite this text in a more professional tone. Return only the rewritten text:")
+        echo "$result" | wl-copy
+        notify-send "Clipboard AI" "Rewritten text copied!"
+        ;;
+    *"Fix grammar"*)
+        result=$(echo "$content" | aichat "Fix all grammar and spelling errors in this text. Return only the corrected text:")
+        echo "$result" | wl-copy
+        notify-send "Clipboard AI" "Corrected text copied!"
+        ;;
+    *"Make concise"*)
+        result=$(echo "$content" | aichat "Make this text more concise while keeping the key information. Return only the concise version:")
+        echo "$result" | wl-copy
+        notify-send "Clipboard AI" "Concise version copied!"
+        ;;
+esac

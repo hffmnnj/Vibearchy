@@ -1,0 +1,15 @@
+/* Game Launcher Theme - Vibearchy */
+@import "../../theme/vibearchy.rasi"
+
+window {
+    width: 600px;
+}
+
+listview {
+    lines: 10;
+    columns: 1;
+}
+
+element-icon {
+    size: 48px;
+}

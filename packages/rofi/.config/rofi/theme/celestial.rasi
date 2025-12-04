@@ -1,0 +1,51 @@
+/* Celestial Sky Blue Theme - Rofi */
+/* Original Vibearchy color palette inspired by Catppuccin Mocha */
+
+* {
+    /* Primary Accent - Sky Blue */
+    sky:            #7dcfffFF;
+    sky-dim:        #58a6ffFF;
+    sky-bright:     #a9e1ffFF;
+
+    /* Base Colors */
+    base:           #1e1e2eFF;
+    mantle:         #181825FF;
+    crust:          #11111bFF;
+    surface0:       #313244FF;
+    surface1:       #45475aFF;
+    surface2:       #585b70FF;
+
+    /* Overlay Colors */
+    overlay0:       #6c7086FF;
+    overlay1:       #7f849cFF;
+    overlay2:       #9399b2FF;
+
+    /* Text Colors */
+    text:           #cdd6f4FF;
+    subtext0:       #a6adc8FF;
+    subtext1:       #bac2deFF;
+
+    /* Status Colors */
+    red:            #f38ba8FF;
+    green:          #a6e3a1FF;
+    yellow:         #f9e2afFF;
+    peach:          #fab387FF;
+    mauve:          #cba6f7FF;
+    teal:           #94e2d5FF;
+
+    /* Theme Assignments */
+    background:     #1e1e2eCC;
+    foreground:     #cdd6f4FF;
+    accent:         #7dcfff69;
+    background-tb:  #313244FF;
+    border-tb:      #45475aFF;
+    selected:       linear-gradient(to right, #313244FF, #7dcfff69);
+    button:         linear-gradient(#585b70FF);
+    button-selected: linear-gradient(#7dcfff69);
+    active:         linear-gradient(to right, #94e2d5FF, #a6e3a1FF);
+    urgent:         #f38ba8FF;
+
+    /* Spacing */
+    border-radius:  12px;
+    spacing:        8px;
+}
