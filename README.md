@@ -448,6 +448,20 @@ A: DuckDuckGo still relies on Bing. Kagi has its own index, no ads ever, and you
 **Q: Is local AI actually private?**
 A: Yes. Ollama models run entirely on your machine. No API calls, no data leaves your system. Use LM Studio for a GUI, or Ollama CLI for scripting. Your prompts stay local.
 
+### Development
+
+**Q: Why does Chromium have no blur/transparency?**
+A: By design. Chromium is set to `opaque` and `noblur` in the Hyprland window rules (`behavior/windows.conf`). This makes it easy to test websites during development - you see true colors without visual effects interfering. Use Zen Browser for daily browsing with full effects, Chromium for web dev testing.
+
+```conf
+# In packages/hypr/.config/hypr/behavior/windows.conf
+windowrulev2 = opaque, class:^(chromium|Chromium)$
+windowrulev2 = noblur, class:^(chromium|Chromium)$
+```
+
+**Q: How do I add similar rules for other apps?**
+A: Edit `packages/hypr/.config/hypr/behavior/windows.conf`. Use `hyprctl clients` to find the window class, then add rules like `opaque`, `noblur`, `float`, `size`, etc.
+
 ### Troubleshooting
 
 **Q: Wallpaper transitions are stuttering?**
