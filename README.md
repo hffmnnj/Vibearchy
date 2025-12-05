@@ -1,8 +1,46 @@
 # Vibearchy
 
-**Opinionated Arch + Hyprland dotfiles. Privacy-first, beautifully animated, AI-integrated. GNU Stow managed with custom Rofi menus for everything—AI tools, clipboard, VPN, SSH, wallpapers. Batteries included.**
+**A complete Arch Linux + Hyprland desktop experience. Privacy-respecting, GPU-accelerated animations, seamlessly integrated AI tools. Managed with GNU Stow for surgical dotfile deployment.**
 
-*Fish shell + Starship prompt. Ghostty terminal. Waybar status. swww animated wallpapers. Catppuccin-based themes. Claude Code, AIChat, Ollama for AI. Zen Browser + Mullvad for privacy. All wired together and ready to go.*
+---
+
+## Why Linux in 2025?
+
+Windows has become a liability. Forced telemetry, embedded advertising in your Start menu, Copilot harvesting your keystrokes, and an operating system that increasingly treats you as the product rather than the customer. Every update brings new "features" you didn't ask for and can't fully disable.
+
+Meanwhile, the open-source community has been quietly building something better.
+
+**Hyprland** delivers the fluid, GPU-accelerated window management that macOS users brag about—but with actual customization. Smooth 144Hz animations, dynamic tiling, and workspaces that adapt to how *you* work. No artificial limitations. No "Pro" tier to unlock basic features.
+
+**Modern Linux** in 2025 isn't the terminal-only experience your IT friend warned you about in 2010. Steam's Proton runs most Windows games natively. Flatpak delivers sandboxed applications with one click. Hardware support rivals Windows for most laptops. And when something *does* need configuring, you actually *can* configure it—no registry hacks or third-party debloaters required.
+
+That old laptop collecting dust? It'll run circles around Windows 11's bloated resource consumption. That gaming PC? It'll run cooler and faster without Windows Defender eating 15% of your CPU in the background.
+
+---
+
+## What is Vibearchy?
+
+Vibearchy is a complete, opinionated system configuration—not just scattered config files. It's the answer to "I want to try Linux but don't know where to start" and "I've used Linux for years but my desktop still looks like 2008."
+
+**The stack:** Fish shell with Starship prompt. Ghostty GPU-accelerated terminal. Waybar status bar with custom modules. swww for smooth animated wallpapers. Catppuccin-based theming across every application. Zen Browser and Mullvad VPN for privacy. Claude Code, AIChat, and Ollama for AI assistance.
+
+**The philosophy:** Everything wired together, ready to deploy, batteries included.
+
+### AI That Actually Helps
+
+The AI integrations in Vibearchy aren't gimmicks bolted onto the side. They're lightweight, privacy-conscious tools that solve real problems:
+
+- **Clipboard AI** — Highlight text anywhere, hit a keybind, get an instant explanation, translation, or summary. No browser tab required.
+- **AI Menu** — Quick access to local Ollama models or Claude for longer conversations. Your choice of model, your data stays local when you want it to.
+- **Command helpers** — Fuzzy search your shell history with AI-suggested completions. Stop Googling the same `tar` flags.
+
+No Microsoft account. No cloud dependency for basic features. No "Copilot wants to help you write this email" interruptions.
+
+---
+
+## At a Glance
+
+*Fish shell + Starship prompt. Ghostty terminal. Waybar status. swww animated wallpapers. Catppuccin themes. Claude Code, AIChat, Ollama. Zen Browser + Mullvad. All wired together.*
 
 ---
 
@@ -112,6 +150,7 @@ While others argue about tiling window managers, Vibearchy users are too busy be
 | **KDE Connect** | Your phone and PC, unified. Notifications, file transfer, remote control. |
 | **btop** | Beautiful system monitor. htop is so last decade. |
 | **Fastfetch** | Flex your system specs in style. |
+| **RAM Guardian** | Memory monitor with Electron app detection and auto-optimization. |
 
 ---
 
@@ -179,6 +218,7 @@ yay -S stow
 | `fastfetch` | System info display |
 | `wallpapers` | 119 curated wallpapers |
 | `ssh` | SSH config template with performance optimizations |
+| `ramguard` | RAM monitoring daemon with Electron optimization, Waybar module, Rofi menu |
 
 ---
 
@@ -198,6 +238,7 @@ Vibearchy includes a suite of Rofi menus for common tasks:
 | **AI Menu** | `Super+A` | Launch AI tools |
 | **SSH** | `Super+Ctrl+S` | SSH connection manager |
 | **VPN** | `Super+Ctrl+V` | Mullvad, Tailscale, NextDNS controls |
+| **RAM Guardian** | `Super+Shift+M` | Memory monitor, process killer, Electron optimizer |
 
 ### AI Tools
 
@@ -222,6 +263,60 @@ Waybar includes a pulseaudio module for volume management:
 | **XF86 Keys** | Volume up/down with OSD overlay |
 
 Additional keybinds: `Super+]` / `Super+[` for ±5% volume control.
+
+### RAM Guardian
+
+A Python-based memory monitoring daemon that automatically detects and optimizes Electron applications.
+
+**Features:**
+- Real-time RAM monitoring with 80%/90% warning thresholds
+- Automatic Electron app detection (VS Code, Discord, Slack, Spotify, Obsidian, etc.)
+- Memory limits via cgroups for runaway Electron processes
+- SwayNC notifications with action buttons for per-app configuration
+- Waybar module showing RAM% and top memory consumer
+- Rofi menu for interactive process management
+
+**Quick Setup:**
+```bash
+# Install dependencies
+sudo pacman -S python-psutil python-toml
+
+# Stow the package
+./scripts/stow.sh stow ramguard
+
+# Enable the systemd service
+systemctl --user enable --now ramguard.service
+
+# Add custom/ramguard to your waybar config modules
+```
+
+**Configuration (`~/.config/ramguard/ramguard.toml`):**
+```toml
+[thresholds]
+warning_percent = 80
+critical_percent = 90
+
+[electron]
+enabled = true
+max_memory_mb = 2048
+auto_limit = true
+notify_on_detect = true
+
+[whitelist]
+processes = ["firefox", "zen"]
+```
+
+**Usage:**
+| Action | Description |
+|--------|-------------|
+| `Super+Shift+M` | Open RAM Guardian menu |
+| Waybar click | Open process manager |
+| Notification buttons | Set limits, whitelist apps |
+
+**View logs:**
+```bash
+journalctl --user -u ramguard -f
+```
 
 ---
 
@@ -297,7 +392,13 @@ Vibearchy/
 │   ├── swaync/                  # Notifications
 │   ├── fastfetch/               # System info
 │   ├── wallpapers/              # Wallpaper collection
-│   └── ssh/                     # SSH config
+│   ├── ssh/                     # SSH config
+│   └── ramguard/                # RAM monitoring daemon
+│       └── .config/
+│           ├── ramguard/        # Daemon + config
+│           ├── waybar/          # Status module
+│           ├── rofi/            # Interactive menu
+│           └── systemd/         # User service
 ├── scripts/
 │   ├── lib/                     # Shared libraries
 │   │   ├── vibearchy.sh         # Core functions
