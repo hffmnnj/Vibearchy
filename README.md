@@ -49,6 +49,7 @@ No Microsoft account. No cloud dependency for basic features. No "Copilot wants 
 ## Screenshots
 
 ### Desktop & Apps
+![Desktop](docs/images/desktop.png)
 
 | Zed IDE | Zen Browser |
 |---------|-------------|
