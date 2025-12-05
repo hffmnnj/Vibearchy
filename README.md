@@ -2,6 +2,8 @@
 
 **A complete Arch Linux + Hyprland desktop experience. Privacy-respecting, GPU-accelerated animations, seamlessly integrated AI tools. Managed with GNU Stow for surgical dotfile deployment.**
 
+![Vibearchy Desktop](docs/images/tile.png)
+
 ---
 
 ## Why Linux in 2025?
@@ -47,7 +49,6 @@ No Microsoft account. No cloud dependency for basic features. No "Copilot wants 
 ## Screenshots
 
 ### Desktop & Apps
-![Tiled Windows](docs/images/tile.png)
 
 | Zed IDE | Zen Browser |
 |---------|-------------|
