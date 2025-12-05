@@ -2,7 +2,7 @@
 
 **A complete Arch Linux + Hyprland desktop experience. Privacy-respecting, GPU-accelerated animations, seamlessly integrated AI tools. Managed with GNU Stow for surgical dotfile deployment.**
 
-![Vibearchy Desktop](docs/images/tile.png)
+![Vibearchy Desktop](docs/images/desktop.png)
 
 ---
 
@@ -49,7 +49,7 @@ No Microsoft account. No cloud dependency for basic features. No "Copilot wants 
 ## Screenshots
 
 ### Desktop & Apps
-![Desktop](docs/images/desktop.png)
+![Tiled Windows](docs/images/tile.png)
 
 | Zed IDE | Zen Browser |
 |---------|-------------|
