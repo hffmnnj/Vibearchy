@@ -1,0 +1,250 @@
+#!/bin/bash
+
+# RAM Guardian Menu
+# Interactive process management and memory optimization
+
+# Theme
+theme="$HOME/.config/rofi/scripts/ramguard-menu/style.rasi"
+
+# Icons
+ram_icon='󰍛'
+process_icon='󰓩'
+electron_icon='󰘔'
+kill_icon='󰗨'
+limit_icon='󰄰'
+whitelist_icon='󰄵'
+settings_icon='󰒓'
+refresh_icon='󰑓'
+back_icon='󰌍'
+warning_icon='󰀦'
+
+DAEMON_SCRIPT="$HOME/.config/ramguard/ramguard.py"
+SOCKET="/tmp/ramguard.sock"
+
+# Rofi command
+rofi_cmd() {
+    local prompt="${1:-RAM Guardian}"
+    local mesg="${2:-}"
+    if [[ -n "$mesg" ]]; then
+        rofi -dmenu -p "$prompt" -mesg "$mesg" -theme "$theme"
+    else
+        rofi -dmenu -p "$prompt" -theme "$theme"
+    fi
+}
+
+# Check daemon status
+is_daemon_running() {
+    [[ -S "$SOCKET" ]]
+}
+
+# Get system memory info
+get_memory_info() {
+    local mem_percent=$(free | awk '/Mem:/ {printf "%.0f", $3/$2 * 100}')
+    local mem_used=$(free -h | awk '/Mem:/ {print $3}')
+    local mem_total=$(free -h | awk '/Mem:/ {print $2}')
+    echo "$mem_percent|$mem_used|$mem_total"
+}
+
+# Get top processes from daemon or directly
+get_processes() {
+    if is_daemon_running; then
+        "$DAEMON_SCRIPT" processes 2>/dev/null
+    else
+        # Fallback: get processes directly
+        ps aux --sort=-%mem | head -20 | tail -n +2 | \
+            awk '{printf "{\"pid\":%d,\"name\":\"%s\",\"memory_mb\":%.0f,\"is_electron\":false}\n", $2, $11, $6/1024}'
+    fi
+}
+
+# Main menu
+show_main_menu() {
+    local mem_info=$(get_memory_info)
+    local mem_percent=$(echo "$mem_info" | cut -d'|' -f1)
+    local mem_used=$(echo "$mem_info" | cut -d'|' -f2)
+    local mem_total=$(echo "$mem_info" | cut -d'|' -f3)
+
+    local status_line="RAM: $mem_used / $mem_total ($mem_percent%)"
+
+    if is_daemon_running; then
+        status_line="$status_line • Daemon running"
+    else
+        status_line="$status_line • Daemon stopped"
+    fi
+
+    local icon="$ram_icon"
+    if [[ "$mem_percent" -ge 90 ]]; then
+        icon="$warning_icon"
+    fi
+
+    echo -e "$process_icon View Processes"
+    echo -e "$electron_icon Electron Apps"
+    echo -e "$kill_icon Kill Process"
+    echo -e "$limit_icon Set Memory Limit"
+    echo -e "$whitelist_icon Manage Whitelist"
+    echo -e "$settings_icon Settings"
+    if is_daemon_running; then
+        echo -e "$refresh_icon Restart Daemon"
+    else
+        echo -e "$refresh_icon Start Daemon"
+    fi
+}
+
+# Process list view
+show_processes() {
+    local processes=$(get_processes)
+
+    if [[ -z "$processes" ]] || [[ "$processes" == *"error"* ]]; then
+        # Fallback to ps
+        ps aux --sort=-%mem | head -15 | tail -n +2 | \
+            awk '{printf "%s %.0fMB %s\n", "󰓩", $6/1024, $11}' | head -10
+    else
+        echo "$processes" | jq -r '.[] | "\(.is_electron | if . then "󰘔" else "󰓩" end) \(.memory_mb | floor)MB \(.name)"' 2>/dev/null | head -15
+    fi
+    echo -e "$back_icon Back"
+}
+
+# Electron apps view
+show_electron_apps() {
+    local processes=$(get_processes)
+
+    if [[ -n "$processes" ]] && [[ "$processes" != *"error"* ]]; then
+        echo "$processes" | jq -r '.[] | select(.is_electron == true) | "󰘔 \(.memory_mb | floor)MB \(.app_name // .name)"' 2>/dev/null
+    fi
+
+    if [[ $(echo "$processes" | jq '[.[] | select(.is_electron == true)] | length' 2>/dev/null) -eq 0 ]]; then
+        echo "No Electron apps detected"
+    fi
+    echo -e "$back_icon Back"
+}
+
+# Kill process menu
+show_kill_menu() {
+    local processes=$(get_processes)
+
+    if [[ -z "$processes" ]] || [[ "$processes" == *"error"* ]]; then
+        ps aux --sort=-%mem | head -10 | tail -n +2 | \
+            awk '{printf "%s|%s|%.0fMB\n", $2, $11, $6/1024}'
+    else
+        echo "$processes" | jq -r '.[] | "\(.pid)|\(.name)|\(.memory_mb | floor)MB"' 2>/dev/null | head -15
+    fi
+}
+
+# Handle kill action
+do_kill() {
+    local selection="$1"
+    local pid=$(echo "$selection" | cut -d'|' -f1)
+    local name=$(echo "$selection" | cut -d'|' -f2)
+
+    # Confirmation
+    local confirm=$(echo -e "Yes, kill $name\nNo, cancel" | rofi_cmd "Confirm" "Kill $name (PID $pid)?")
+
+    if [[ "$confirm" == "Yes"* ]]; then
+        kill "$pid" 2>/dev/null
+        notify-send -u normal "Process Killed" "$name (PID $pid) terminated"
+    fi
+}
+
+# Memory limit menu
+show_limit_menu() {
+    echo "512MB"
+    echo "1024MB"
+    echo "1536MB"
+    echo "2048MB"
+    echo "3072MB"
+    echo "4096MB"
+    echo "Custom..."
+    echo -e "$back_icon Back"
+}
+
+# Settings menu
+show_settings_menu() {
+    echo "Warning threshold: 80%"
+    echo "Critical threshold: 90%"
+    echo "Auto-limit Electron: ON"
+    echo "Notifications: ON"
+    echo "Edit config file"
+    echo -e "$back_icon Back"
+}
+
+# Whitelist menu
+show_whitelist_menu() {
+    # Show current whitelist
+    if [[ -f "$HOME/.config/ramguard/ramguard.toml" ]]; then
+        grep -A 10 '\[whitelist\]' "$HOME/.config/ramguard/ramguard.toml" | \
+            grep -oP '(?<=")[^"]+(?=")' | while read -r proc; do
+            echo "󰄵 $proc"
+        done
+    fi
+    echo "Add process..."
+    echo -e "$back_icon Back"
+}
+
+# Main loop
+main() {
+    local mem_info=$(get_memory_info)
+    local mem_percent=$(echo "$mem_info" | cut -d'|' -f1)
+    local mem_used=$(echo "$mem_info" | cut -d'|' -f2)
+    local mem_total=$(echo "$mem_info" | cut -d'|' -f3)
+    local status_msg="RAM: $mem_used / $mem_total ($mem_percent%)"
+
+    local selection=$(show_main_menu | rofi_cmd "RAM Guardian" "$status_msg")
+
+    case "$selection" in
+        *"View Processes"*)
+            local proc=$(show_processes | rofi_cmd "Processes" "Top memory consumers")
+            [[ "$proc" != *"Back"* ]] && [[ -n "$proc" ]] && main
+            ;;
+        *"Electron Apps"*)
+            local app=$(show_electron_apps | rofi_cmd "Electron" "Detected Electron applications")
+            [[ "$app" != *"Back"* ]] && [[ -n "$app" ]] && main
+            ;;
+        *"Kill Process"*)
+            local procs=$(show_kill_menu)
+            local proc=$(echo "$procs" | awk -F'|' '{printf "󰗨 %s (%s)\n", $2, $3}' | rofi_cmd "Kill" "Select process to terminate")
+            if [[ -n "$proc" ]] && [[ "$proc" != *"Back"* ]]; then
+                local idx=$(echo "$procs" | awk -F'|' '{printf "󰗨 %s (%s)\n", $2, $3}' | grep -n "^$proc$" | cut -d: -f1)
+                local line=$(echo "$procs" | sed -n "${idx}p")
+                do_kill "$line"
+            fi
+            main
+            ;;
+        *"Set Memory Limit"*)
+            local limit=$(show_limit_menu | rofi_cmd "Limit" "Set default Electron memory limit")
+            if [[ "$limit" == "Custom"* ]]; then
+                limit=$(echo "" | rofi_cmd "Custom limit" "Enter limit in MB")
+            fi
+            [[ "$limit" != *"Back"* ]] && [[ -n "$limit" ]] && notify-send "Memory Limit" "Set to $limit"
+            main
+            ;;
+        *"Manage Whitelist"*)
+            local wl=$(show_whitelist_menu | rofi_cmd "Whitelist" "Processes excluded from monitoring")
+            [[ "$wl" != *"Back"* ]] && main
+            ;;
+        *"Settings"*)
+            local setting=$(show_settings_menu | rofi_cmd "Settings")
+            if [[ "$setting" == "Edit config"* ]]; then
+                ${EDITOR:-nvim} "$HOME/.config/ramguard/ramguard.toml"
+            fi
+            [[ "$setting" != *"Back"* ]] && main
+            ;;
+        *"Restart Daemon"*|*"Start Daemon"*)
+            systemctl --user restart ramguard.service 2>/dev/null || \
+                "$DAEMON_SCRIPT" &
+            notify-send "RAM Guardian" "Daemon restarted"
+            ;;
+    esac
+}
+
+# Handle command line args
+if [[ "$1" == "--set-limit" ]] && [[ -n "$2" ]]; then
+    # Called from notification action
+    pid="$2"
+    limit=$(show_limit_menu | rofi_cmd "Limit" "Set memory limit for PID $pid")
+    if [[ -n "$limit" ]] && [[ "$limit" != *"Back"* ]]; then
+        # Send limit command to daemon
+        echo "limit:$pid:${limit%MB}" | nc -U "$SOCKET" 2>/dev/null
+    fi
+    exit 0
+fi
+
+main

@@ -1,0 +1,11 @@
+{
+  "custom/ramguard": {
+    "exec": "~/.config/waybar/scripts/ramguard-status",
+    "return-type": "json",
+    "interval": 5,
+    "format": "{}",
+    "on-click": "~/.config/rofi/scripts/ramguard-menu/ramguard-menu",
+    "on-click-right": "~/.config/ramguard/ramguard.py status | jq",
+    "tooltip": true,
+  },
+}

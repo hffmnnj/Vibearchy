@@ -1,0 +1,20 @@
+[thresholds]
+warning_percent = 80
+critical_percent = 90
+check_interval_seconds = 5
+
+[electron]
+enabled = true
+max_memory_mb = 2048
+auto_limit = true
+notify_on_detect = true
+
+[notifications]
+enabled = true
+min_interval_seconds = 60
+swaync_actions = true
+
+[whitelist]
+processes = [ "firefox", "zen", "chromium",]
+
+[electron_apps]

@@ -1,0 +1,15 @@
+/* RAM Guardian Menu Theme - Vibearchy */
+@import "~/.config/rofi/theme/vibearchy.rasi"
+
+window {
+    width: 500px;
+}
+
+listview {
+    lines: 8;
+    columns: 1;
+}
+
+element-icon {
+    size: 28px;
+}

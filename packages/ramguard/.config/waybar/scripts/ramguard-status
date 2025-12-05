@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# Waybar status script for RAM Guardian
+# Queries daemon via Unix socket and formats output
+
+SOCKET="/tmp/ramguard.sock"
+
+# Check if daemon is running
+if [[ ! -S "$SOCKET" ]]; then
+    # Daemon not running, show basic memory info
+    mem_percent=$(free | awk '/Mem:/ {printf "%.0f", $3/$2 * 100}')
+
+    if [[ $mem_percent -ge 90 ]]; then
+        class="critical"
+        icon="󰀦"
+    elif [[ $mem_percent -ge 80 ]]; then
+        class="warning"
+        icon="󰍛"
+    else
+        class="normal"
+        icon="󰍛"
+    fi
+
+    echo "{\"text\":\"$icon ${mem_percent}%\",\"tooltip\":\"RAM: ${mem_percent}%\\nDaemon not running\",\"class\":\"$class\"}"
+    exit 0
+fi
+
+# Query daemon for status
+status=$("$HOME/.config/ramguard/ramguard.py" status 2>/dev/null)
+
+if [[ -z "$status" ]] || [[ "$status" == *"error"* ]]; then
+    mem_percent=$(free | awk '/Mem:/ {printf "%.0f", $3/$2 * 100}')
+    echo "{\"text\":\"󰍛 ${mem_percent}%\",\"tooltip\":\"RAM: ${mem_percent}%\\nDaemon error\",\"class\":\"warning\"}"
+    exit 0
+fi
+
+# Parse JSON response
+mem_percent=$(echo "$status" | jq -r '.memory_percent // 0')
+alert_level=$(echo "$status" | jq -r '.alert_level // "normal"')
+top_process=$(echo "$status" | jq -r '.top_process // ""')
+top_memory=$(echo "$status" | jq -r '.top_memory_mb // 0')
+electron_count=$(echo "$status" | jq -r '.electron_count // 0')
+limited_count=$(echo "$status" | jq -r '.limited_count // 0')
+mem_used=$(echo "$status" | jq -r '.memory_used_gb // 0')
+mem_total=$(echo "$status" | jq -r '.memory_total_gb // 0')
+
+# Set icon based on alert level
+case "$alert_level" in
+    critical)
+        icon="󰀦"
+        class="critical"
+        ;;
+    warning)
+        icon="󰍛"
+        class="warning"
+        ;;
+    *)
+        icon="󰍛"
+        class="normal"
+        ;;
+esac
+
+# Format text (icon + percent + top process)
+if [[ -n "$top_process" && "$top_process" != "null" ]]; then
+    text="$icon ${mem_percent}% $top_process"
+else
+    text="$icon ${mem_percent}%"
+fi
+
+# Build tooltip
+tooltip="RAM: ${mem_used}GB / ${mem_total}GB (${mem_percent}%)"
+if [[ -n "$top_process" && "$top_process" != "null" ]]; then
+    tooltip="$tooltip\\nTop: $top_process (${top_memory}MB)"
+fi
+if [[ "$electron_count" -gt 0 ]]; then
+    tooltip="$tooltip\\nElectron apps: $electron_count"
+fi
+if [[ "$limited_count" -gt 0 ]]; then
+    tooltip="$tooltip\\nMemory limited: $limited_count"
+fi
+
+# Output JSON
+echo "{\"text\":\"$text\",\"tooltip\":\"$tooltip\",\"class\":\"$class\"}"

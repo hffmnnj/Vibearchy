@@ -1,0 +1,21 @@
+[Unit]
+Description=RAM Guardian - Memory monitoring daemon
+Documentation=https://github.com/vibearchy
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.config/ramguard/ramguard.py
+Restart=on-failure
+RestartSec=5
+
+# Environment
+Environment=PYTHONUNBUFFERED=1
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ramguard
+
+[Install]
+WantedBy=default.target

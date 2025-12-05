@@ -10,3 +10,5 @@ kdeconnect
 # System monitoring
 btop
 fastfetch
+python-psutil  # RAM Guardian dependency
+python-toml    # RAM Guardian config
