@@ -3,6 +3,46 @@ local o = vim.opt
 
 local lazy = require("lazy")
 
+-- ╭──────────────────────────────────────────────────────────╮
+-- │ FAMILIAR KEYBINDS (Sublime/nano/VSCode style)           │
+-- │ Works in both Normal and Insert mode where sensible     │
+-- ╰──────────────────────────────────────────────────────────╯
+
+-- Ctrl+S = Save (works in normal and insert mode)
+map({ "n", "i", "v" }, "<C-s>", "<cmd>w<CR>", { desc = "Save File" })
+
+-- Ctrl+Q = Quit (like nano)
+map("n", "<C-q>", "<cmd>q<CR>", { desc = "Quit" })
+
+-- Ctrl+Z = Undo, Ctrl+Y = Redo
+map("n", "<C-z>", "u", { desc = "Undo" })
+map("n", "<C-y>", "<C-r>", { desc = "Redo" })
+map("i", "<C-z>", "<C-o>u", { desc = "Undo" })
+map("i", "<C-y>", "<C-o><C-r>", { desc = "Redo" })
+
+-- Ctrl+F = Find in file (Telescope)
+map("n", "<C-f>", "<cmd>Telescope current_buffer_fuzzy_find<CR>", { desc = "Find in File" })
+
+-- Ctrl+P = Find file (like Sublime/VSCode)
+map("n", "<C-p>", "<cmd>Telescope find_files<CR>", { desc = "Find File" })
+
+-- Ctrl+Shift+F = Find in project
+map("n", "<C-S-f>", "<cmd>Telescope live_grep<CR>", { desc = "Find in Project" })
+
+-- Ctrl+G = Go to line
+map("n", "<C-g>", ":", { desc = "Go to Line (type number)" })
+
+-- Ctrl+/ = Toggle comment (works by default in LazyVim with gcc)
+-- Already mapped via mini.comment or Comment.nvim
+
+-- Ctrl+D = Select word / next occurrence (like Sublime multi-cursor start)
+map("n", "<C-d>", "*``", { desc = "Select Word" })
+
+-- Escape = Clear search highlight + return to normal mode
+map("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear Search" })
+map("i", "jk", "<Esc>", { desc = "Exit Insert Mode" })
+map("i", "jj", "<Esc>", { desc = "Exit Insert Mode" })
+
 -- Search current word
 local searching_brave = function()
   vim.fn.system({ "xdg-open", "https://search.brave.com/search?q=" .. vim.fn.expand("<cword>") })
