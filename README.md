@@ -130,6 +130,8 @@ While others argue about tiling window managers, Vibearchy users are too busy be
 | App | Why I Chose It |
 |-----|-----------------|
 | **Claude Code** | AI pair programming in your terminal. Context-aware, agentic, powerful. |
+| **OpenCode** | Open source Claude Code alternative. Supports Claude Max login - no API credits needed. Multi-session, LSP-enabled, privacy-focused. |
+| **Claude Desktop** | Official Anthropic desktop app. Full Claude Code integration with GUI session management. |
 | **AIChat** | All-in-one AI CLI. Gemini, GPT, Claude, Ollama - with MCP tools and memory. |
 | **Open Interpreter** | Natural language computer control. Run code, manage files, browse web. |
 | **Me and My Friends** | AI advisory council. 7 AI personas for diverse perspectives on decisions. Also I made it :P. |
@@ -247,6 +249,8 @@ Vibearchy includes a suite of Rofi menus for common tasks:
 | Tool | Description |
 |------|-------------|
 | **Claude Code** | Agentic coding assistant. Continue sessions, open projects, plan mode. |
+| **OpenCode** | Open source TUI alternative. Claude Max login support, multi-session, LSP-enabled. |
+| **Claude Desktop** | Official Anthropic GUI. Full Claude experience with visual session management. |
 | **AIChat** | Gemini 2.5 Pro/Flash, shell mode, web search, memory graph queries. |
 | **Open Interpreter** | Natural language -> code execution. Default, fast, coding, YOLO modes. |
 | **AI Council** | 7 AI advisors powered by Ollama + Gemini synthesis. |
@@ -532,10 +536,13 @@ A: Edit files in `packages/hypr/.config/hypr/keybinds/`. Binds are split by purp
 ### AI Integration
 
 **Q: What AI tools are included?**
-A: Claude Code for coding, AIChat for multi-model chat, Open Interpreter for system automation, Ollama for local models. The AI Menu (`Super+Shift+Copilot` or your configured key) provides quick access.
+A: Claude Code for CLI coding, OpenCode as an open-source alternative with Claude Max support, Claude Desktop for GUI sessions, AIChat for multi-model chat, Open Interpreter for system automation, Ollama for local models. The AI Menu (`Super+A`) provides quick access to all tools.
 
 **Q: Do the AI tools require API keys?**
-A: Claude Code needs an Anthropic key. AIChat supports multiple providers (set in config). Open Interpreter works with any OpenAI-compatible API. Ollama runs fully local - no keys needed.
+A: **OpenCode** and **Claude Desktop** can use your Claude Max subscription directly - no API credits needed, just login with your Anthropic account. Claude Code CLI also supports Max login via `/login`. AIChat supports multiple providers (set in config). Open Interpreter works with any OpenAI-compatible API. Ollama runs fully local - no keys needed.
+
+**Q: What's the difference between Claude Code, OpenCode, and Claude Desktop?**
+A: **Claude Code** is Anthropic's official CLI tool. **OpenCode** is an open-source alternative with a nicer TUI, multi-session support, LSP integration, and privacy focus (no data stored). **Claude Desktop** is the official GUI app with visual session management. All three support Claude Max subscription login.
 
 **Q: What's Clipboard AI?**
 A: Copy any text, hit `Super+Shift+Y`, and AI analyzes it. Summarize articles, explain code, translate text, review PRs - all from your clipboard. Uses your configured AI provider.
