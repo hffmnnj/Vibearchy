@@ -7,6 +7,12 @@ ollama
 # AIChat - multi-provider CLI
 aichat-bin
 
+# OpenCode - open source Claude Code TUI (supports Claude Max subscription login)
+opencode-bin
+
+# Claude Desktop - official Anthropic desktop app (Electron)
+claude-desktop-bin
+
 # Note: These require special installation
 # claude-code-cli (npm install -g @anthropic-ai/claude-code)
 # open-interpreter (pip install open-interpreter)

@@ -28,6 +28,8 @@ opus_icon='󱤚'
 haiku_icon='󰓥'
 clipboard_icon='󰅍'
 screenshot_icon='󰹑'
+opencode_icon='󰘦'
+desktop_icon='󰍹'
 council_icon='󰑴'
 cfo_icon='💰'
 cmo_icon='📣'
@@ -64,6 +66,8 @@ build_menu() {
     echo -e "$interpreter_icon Open Interpreter"
     echo -e "$ollama_icon Ollama Chat"
     echo -e "$claude_icon Claude Code"
+    echo -e "$opencode_icon OpenCode"
+    echo -e "$desktop_icon Claude Desktop"
     echo -e "$council_icon AI Council"
     echo -e "$clipboard_icon Clipboard AI"
     echo -e "$screenshot_icon Screenshot AI"
@@ -96,8 +100,8 @@ build_claude_main_menu() {
 
 # Build Claude Code project menu
 build_claude_projects() {
-    echo -e "$web_icon Zolt Web"
-    echo -e "$app_icon Zolt App"
+    echo -e "$web_icon Pulsyn Web"
+    echo -e "$app_icon Pulsyn App"
     echo -e "$folder_icon ~/Documents"
     echo -e "$folder_icon ~/Projects"
     echo -e "$folder_icon ~/"
@@ -119,8 +123,8 @@ build_claude_permission_menu() {
 # Resolve project directory from selection
 resolve_project_dir() {
     case "$1" in
-        *"Zolt Web"*) echo "$HOME/Documents/Zolt Ring/zoltring-web" ;;
-        *"Zolt App"*) echo "$HOME/Documents/Zolt Ring/zoltring-app" ;;
+        *"Pulsyn Web"*) echo "$HOME/Documents/Pulsyn/pulsyn-web" ;;
+        *"Pulsyn App"*) echo "$HOME/Documents/Pulsyn/pulsyn-app" ;;
         *"~/Documents"*) echo "$HOME/Documents" ;;
         *"~/Projects"*) echo "$HOME/Projects" ;;
         *"~/"*) echo "$HOME" ;;
@@ -193,6 +197,65 @@ execute_claude_action() {
 
             # Launch in plan mode (read-only)
             ghostty -e bash -c "cd '$dir' && claude $model_flag --permission-mode plan" &
+            ;;
+    esac
+}
+
+# Build OpenCode main menu
+build_opencode_menu() {
+    echo -e "$code_icon Start"
+    echo -e "$continue_icon Continue Session"
+    echo -e "$folder_icon Open Project..."
+    echo -e "$plan_icon Plan Mode..."
+}
+
+# Build OpenCode project menu
+build_opencode_projects() {
+    echo -e "$web_icon Pulsyn Web"
+    echo -e "$app_icon Pulsyn App"
+    echo -e "$folder_icon ~/Documents"
+    echo -e "$folder_icon ~/Projects"
+    echo -e "$folder_icon ~/"
+}
+
+# Execute OpenCode action
+execute_opencode_action() {
+    local opencode_choice="$1"
+
+    case "$opencode_choice" in
+        *"Start"*)
+            ghostty -e opencode &
+            ;;
+        *"Continue Session"*)
+            ghostty -e opencode --continue &
+            ;;
+        *"Open Project"*)
+            # Step 1: Select project
+            local project="$(build_opencode_projects | submenu_rofi_cmd "Project" "Select project or type path")"
+            [[ -z "$project" ]] && return
+
+            local dir="$(resolve_project_dir "$project")"
+            if [[ ! -d "$dir" ]]; then
+                notify-send "AI Menu" "Directory not found: $dir"
+                return
+            fi
+
+            # Launch in project directory
+            ghostty -e bash -c "cd '$dir' && opencode" &
+            ;;
+        *"Plan Mode"*)
+            # Step 1: Select project
+            local project="$(build_opencode_projects | submenu_rofi_cmd "Project" "Select project for planning")"
+            [[ -z "$project" ]] && return
+
+            local dir="$(resolve_project_dir "$project")"
+            if [[ ! -d "$dir" ]]; then
+                notify-send "AI Menu" "Directory not found: $dir"
+                return
+            fi
+
+            # Launch in plan mode (read-only agent)
+            ghostty -e bash -c "cd '$dir' && opencode --agent plan" &
             ;;
     esac
 }
@@ -344,6 +407,13 @@ execute_action() {
         *"Claude Code"*)
             claude_choice="$(build_claude_main_menu | submenu_rofi_cmd "Claude Code" "Select action")"
             [[ -n "$claude_choice" ]] && execute_claude_action "$claude_choice"
+            ;;
+        *"OpenCode"*)
+            opencode_choice="$(build_opencode_menu | submenu_rofi_cmd "OpenCode" "Select action")"
+            [[ -n "$opencode_choice" ]] && execute_opencode_action "$opencode_choice"
+            ;;
+        *"Claude Desktop"*)
+            claude-desktop &
             ;;
         *"AI Council"*)
             council_choice="$(build_council_menu | submenu_rofi_cmd "AI Council" "7 AI advisors for diverse perspectives")"
