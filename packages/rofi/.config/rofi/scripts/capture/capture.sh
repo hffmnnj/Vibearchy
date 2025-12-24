@@ -87,6 +87,9 @@ capture_screen() {
     local file
     file=$(gen_filename)
 
+    # Brief delay to allow Rofi menu to close
+    sleep 0.3
+
     if grim "$file"; then
         wl-copy < "$file"
         save_last_path "$file"
@@ -105,6 +108,9 @@ capture_window() {
 
     local file
     file=$(gen_filename)
+
+    # Brief delay to allow Rofi menu to close
+    sleep 0.3
 
     local geom
     geom=$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')
