@@ -1,0 +1,293 @@
+#!/bin/bash
+#
+# Performance Menu
+# Unified control for thermal profiles, CPU turbo, and GPU switching
+# Part of Vibearchy dotfiles
+#
+
+# Source common library
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+source "$SCRIPT_DIR/../lib/rofi-common.sh"
+
+# Theme
+theme="$SCRIPT_DIR/performance.rasi"
+[[ ! -f "$theme" ]] && theme="$ROFI_THEME"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STATUS DETECTION FUNCTIONS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+get_thermal_profile() {
+    if [[ -f "$HOME/.config/thermal/state.json" ]]; then
+        jq -r '.active_profile // "unknown"' "$HOME/.config/thermal/state.json" 2>/dev/null || echo "unknown"
+    else
+        echo "unknown"
+    fi
+}
+
+get_turbo_state() {
+    if [[ -f /sys/devices/system/cpu/cpufreq/boost ]]; then
+        local state=$(cat /sys/devices/system/cpu/cpufreq/boost 2>/dev/null || echo "-1")
+        [[ "$state" == "1" ]] && echo "ON" || echo "OFF"
+    else
+        echo "N/A"
+    fi
+}
+
+get_active_gpu() {
+    if lsmod 2>/dev/null | grep -q "^nvidia"; then
+        echo "NVIDIA"
+    elif lsmod 2>/dev/null | grep -q "^amdgpu"; then
+        echo "AMD"
+    else
+        echo "Unknown"
+    fi
+}
+
+get_system_status() {
+    local status
+    if command -v vibe-performance-status &>/dev/null; then
+        status=$(vibe-performance-status 2>/dev/null)
+        if [[ -n "$status" ]]; then
+            local cpu_temp=$(echo "$status" | jq -r '.cpu_temp // "0"')
+            local cpu_freq=$(echo "$status" | jq -r '.cpu_freq // "0"')
+            local turbo=$(echo "$status" | jq -r '.turbo // "unknown"')
+            local profile=$(echo "$status" | jq -r '.profile // "unknown"')
+
+            local turbo_text="OFF"
+            [[ "$turbo" == "1" ]] && turbo_text="ON"
+
+            echo "CPU: ${cpu_temp}°C @ ${cpu_freq}MHz | Turbo: ${turbo_text} | Profile: ${profile^}"
+            return
+        fi
+    fi
+
+    # Fallback if status command not available
+    local profile=$(get_thermal_profile)
+    local turbo=$(get_turbo_state)
+    echo "Profile: ${profile^} | Turbo: ${turbo}"
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MENU FUNCTIONS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+show_main_menu() {
+    local current_profile=$(get_thermal_profile)
+    local turbo_state=$(get_turbo_state)
+    local active_gpu=$(get_active_gpu)
+
+    # Profile indicator
+    local profile_indicator=""
+    case "$current_profile" in
+        performance) profile_indicator="$ICON_PERF" ;;
+        balanced) profile_indicator="$ICON_BALANCED" ;;
+        battery) profile_indicator="$ICON_BATTERY" ;;
+        cool) profile_indicator="$ICON_COOL" ;;
+        *) profile_indicator="$ICON_PERFORMANCE" ;;
+    esac
+
+    echo -e "$ICON_PERFORMANCE\tThermal Profiles [$profile_indicator ${current_profile^}]"
+    echo -e "$ICON_TURBO\tCPU Turbo: [$turbo_state]"
+    echo -e "$ICON_GPU\tGPU Mode: [$active_gpu]"
+    echo -e "$ICON_INFO\tSystem Status"
+}
+
+show_thermal_menu() {
+    local current=$(get_thermal_profile)
+
+    local perf_indicator=""
+    local balanced_indicator=""
+    local battery_indicator=""
+    local cool_indicator=""
+
+    [[ "$current" == "performance" ]] && perf_indicator=" [✓ Active]"
+    [[ "$current" == "balanced" ]] && balanced_indicator=" [✓ Active]"
+    [[ "$current" == "battery" ]] && battery_indicator=" [✓ Active]"
+    [[ "$current" == "cool" ]] && cool_indicator=" [✓ Active]"
+
+    echo -e "$ICON_PERF\tPerformance$perf_indicator"
+    echo -e "$ICON_BALANCED\tBalanced$balanced_indicator"
+    echo -e "$ICON_BATTERY\tBattery Saver$battery_indicator"
+    echo -e "$ICON_COOL\tCool & Quiet$cool_indicator"
+    echo -e "$ICON_BACK\tBack"
+}
+
+show_gpu_menu() {
+    local current=$(get_active_gpu)
+
+    local amd_indicator=""
+    local nvidia_indicator=""
+
+    [[ "$current" == "AMD" ]] && amd_indicator=" [✓ Active]"
+    [[ "$current" == "NVIDIA" ]] && nvidia_indicator=" [✓ Active]"
+
+    echo -e "$ICON_AMD\tAMD Integrated$amd_indicator"
+    echo -e "$ICON_NVIDIA\tNVIDIA Discrete$nvidia_indicator"
+    echo -e "$ICON_INFO\tGPU Status"
+    echo -e "$ICON_BACK\tBack"
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ACTION FUNCTIONS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+apply_thermal_profile() {
+    local profile="$1"
+
+    if command -v vibe-thermal-set &>/dev/null; then
+        vibe-thermal-set "$profile"
+    else
+        vibe_notify "Error" "vibe-thermal-set not found" -u critical
+    fi
+}
+
+toggle_cpu_turbo() {
+    if command -v vibe-cpu-turbo-toggle &>/dev/null; then
+        local result=$(vibe-cpu-turbo-toggle 2>&1)
+        if [[ $? -eq 0 ]]; then
+            vibe_notify "CPU Turbo" "Toggled: $result"
+        else
+            vibe_notify "Error" "Failed to toggle turbo" -u critical
+        fi
+    else
+        vibe_notify "Error" "vibe-cpu-turbo-toggle not found" -u critical
+    fi
+}
+
+switch_gpu_mode() {
+    local mode="$1"
+
+    if command -v vibe-gpu-switch &>/dev/null; then
+        # Show warning about reboot requirement
+        local confirm=$(echo -e "$ICON_YES\tYes, switch GPU\n$ICON_NO\tNo, cancel" | \
+            rofi -dmenu -i \
+            -p "Confirm GPU Switch" \
+            -mesg "⚠️  Switching GPU requires a system reboot.\nProceed with $mode GPU?" \
+            -theme "$theme")
+
+        if [[ "$confirm" == *"Yes"* ]]; then
+            vibe-gpu-switch "$mode"
+
+            # Ask if user wants to reboot now
+            local reboot_confirm=$(echo -e "$ICON_YES\tReboot Now\n$ICON_NO\tReboot Later" | \
+                rofi -dmenu -i \
+                -p "Reboot Required" \
+                -mesg "GPU mode changed. Reboot to apply.\nReboot now?" \
+                -theme "$theme")
+
+            if [[ "$reboot_confirm" == *"Now"* ]]; then
+                systemctl reboot
+            fi
+        fi
+    else
+        vibe_notify "Error" "vibe-gpu-switch not found" -u critical
+    fi
+}
+
+show_system_status() {
+    if command -v vibe-performance-status &>/dev/null; then
+        local status=$(vibe-performance-status 2>/dev/null)
+        if [[ -n "$status" ]]; then
+            local cpu_temp=$(echo "$status" | jq -r '.cpu_temp // "N/A"')
+            local cpu_freq=$(echo "$status" | jq -r '.cpu_freq // "N/A"')
+            local turbo=$(echo "$status" | jq -r '.turbo // "N/A"')
+            local epp=$(echo "$status" | jq -r '.epp // "N/A"')
+            local profile=$(echo "$status" | jq -r '.profile // "N/A"')
+            local gpu_temp=$(echo "$status" | jq -r '.gpu_temp // "N/A"')
+            local gpu_power=$(echo "$status" | jq -r '.gpu_power // "N/A"')
+            local active_gpu=$(echo "$status" | jq -r '.active_gpu // "N/A"')
+
+            local turbo_text="OFF"
+            [[ "$turbo" == "1" ]] && turbo_text="ON"
+
+            vibe_notify "System Performance Status" \
+                "Profile: ${profile^}\nCPU: ${cpu_temp}°C @ ${cpu_freq}MHz\nTurbo: ${turbo_text}\nEPP: ${epp}\nGPU: ${active_gpu} @ ${gpu_temp}°C\nGPU Power: ${gpu_power}W" \
+                -t 10000
+        else
+            vibe_notify "Error" "Failed to get system status" -u critical
+        fi
+    else
+        vibe_notify "Error" "vibe-performance-status not found" -u critical
+    fi
+}
+
+show_gpu_status() {
+    if command -v vibe-gpu-switch &>/dev/null; then
+        local status=$(vibe-gpu-switch status 2>&1)
+        vibe_notify "GPU Status" "$status" -t 8000
+    else
+        vibe_notify "Error" "vibe-gpu-switch not found" -u critical
+    fi
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ROFI LAUNCHER
+# ═══════════════════════════════════════════════════════════════════════════════
+
+rofi_cmd() {
+    local prompt="$1"
+    local mesg="$2"
+
+    rofi -dmenu -i \
+        -p "$prompt" \
+        -mesg "$mesg" \
+        -theme "$theme"
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MAIN LOGIC
+# ═══════════════════════════════════════════════════════════════════════════════
+
+main() {
+    # Show main menu
+    local status=$(get_system_status)
+    local main_choice=$(show_main_menu | rofi_cmd "Performance" "$status")
+
+    [[ -z "$main_choice" ]] && exit 0
+
+    local action="${main_choice##*$'\t'}"
+
+    case "$action" in
+        *"Thermal Profiles"*)
+            # Show thermal submenu
+            local thermal_choice=$(show_thermal_menu | rofi_cmd "Thermal Profiles" "Select performance profile")
+
+            [[ -z "$thermal_choice" || "$thermal_choice" == *"Back"* ]] && exec "$0"
+
+            local thermal_action="${thermal_choice##*$'\t'}"
+
+            case "$thermal_action" in
+                "Performance"*) apply_thermal_profile "performance" ;;
+                "Balanced"*) apply_thermal_profile "balanced" ;;
+                "Battery Saver"*) apply_thermal_profile "battery" ;;
+                "Cool & Quiet"*) apply_thermal_profile "cool" ;;
+            esac
+            ;;
+
+        *"CPU Turbo"*)
+            toggle_cpu_turbo
+            ;;
+
+        *"GPU Mode"*)
+            # Show GPU submenu
+            local gpu_choice=$(show_gpu_menu | rofi_cmd "GPU Mode" "⚠️  GPU switching requires reboot")
+
+            [[ -z "$gpu_choice" || "$gpu_choice" == *"Back"* ]] && exec "$0"
+
+            local gpu_action="${gpu_choice##*$'\t'}"
+
+            case "$gpu_action" in
+                "AMD Integrated"*) switch_gpu_mode "amd" ;;
+                "NVIDIA Discrete"*) switch_gpu_mode "nvidia" ;;
+                "GPU Status"*) show_gpu_status ;;
+            esac
+            ;;
+
+        *"System Status"*)
+            show_system_status
+            ;;
+    esac
+}
+
+main

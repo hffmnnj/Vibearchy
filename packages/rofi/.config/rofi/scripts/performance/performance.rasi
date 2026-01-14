@@ -1,0 +1,59 @@
+/*
+ * Performance Menu Theme - Vibearchy
+ * Thermal management, CPU turbo, and GPU switching
+ */
+
+@import "../../theme/vibearchy.rasi"
+
+window {
+    width: 600px;
+}
+
+mainbox {
+    padding: 20px;
+}
+
+message {
+    background-color: @surface0;
+    text-color: @sky;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+listview {
+    lines: 5;
+    columns: 1;
+    spacing: 8px;
+}
+
+element {
+    padding: 12px;
+    border-radius: 8px;
+}
+
+element selected {
+    background-color: @sky;
+    text-color: @crust;
+}
+
+element-text {
+    vertical-align: 0.5;
+}
+
+element-icon {
+    size: 24px;
+    margin-right: 12px;
+}
+
+inputbar {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background-color: @surface0;
+}
+
+prompt {
+    text-color: @mauve;
+    font: "JetBrainsMono Nerd Font Bold 12";
+}
