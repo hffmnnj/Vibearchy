@@ -62,6 +62,23 @@ readonly ICON_SETTINGS='󰒓'
 readonly ICON_INFO='󰋽'
 readonly ICON_BACK='󰁍'
 
+# Performance/System
+readonly ICON_PERFORMANCE='󰓅'
+readonly ICON_CPU='󰘚'
+readonly ICON_GPU='󰍹'
+readonly ICON_TURBO='󱐋'
+readonly ICON_TEMP='󰔄'
+readonly ICON_FREQ='󱤓'
+readonly ICON_POWER_PERF='󰈐'
+
+# Thermal Profiles
+readonly ICON_PERF='󰈸'
+readonly ICON_BALANCED='󰗑'
+readonly ICON_BATTERY='󰂄'
+readonly ICON_COOL='󰜗'
+readonly ICON_AMD='󰢮'
+readonly ICON_NVIDIA='󰖂'
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # NOTIFICATION HELPERS
 # ═══════════════════════════════════════════════════════════════════════════════
