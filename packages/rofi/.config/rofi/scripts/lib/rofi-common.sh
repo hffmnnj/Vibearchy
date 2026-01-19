@@ -79,6 +79,14 @@ readonly ICON_COOL='󰜗'
 readonly ICON_AMD='󰢮'
 readonly ICON_NVIDIA='󰖂'
 
+# Webcam/Video
+readonly ICON_VIDEO='󰕧'
+readonly ICON_RECORD='󰑋'
+readonly ICON_RECORD_STOP='󰑊'
+readonly ICON_STREAM='󰑈'
+readonly ICON_DEVICE='󱜠'
+readonly ICON_PLAY='󰐊'
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # NOTIFICATION HELPERS
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,15 @@
+/* Webcam Menu Theme - Vibearchy */
+@import "../../theme/vibearchy.rasi"
+
+window {
+    width: 420px;
+}
+
+listview {
+    lines: 7;
+    columns: 1;
+}
+
+element-icon {
+    size: 28px;
+}
