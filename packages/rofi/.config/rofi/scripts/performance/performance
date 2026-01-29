@@ -44,6 +44,67 @@ get_active_gpu() {
     fi
 }
 
+get_tlp_profile() {
+    if ! command -v tlp &>/dev/null; then
+        echo "unavailable"
+        return
+    fi
+
+    # Check current power source
+    local on_ac=false
+    if [[ -f /sys/class/power_supply/AC*/online ]]; then
+        local ac_state=$(cat /sys/class/power_supply/AC*/online 2>/dev/null | head -1)
+        [[ "$ac_state" == "1" ]] && on_ac=true
+    fi
+
+    # Get CPU frequency and boost to determine mode
+    local max_freq=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 2>/dev/null || echo "0")
+    local boost=$(cat /sys/devices/system/cpu/cpufreq/boost 2>/dev/null || echo "-1")
+    local epp=$(cat /sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference 2>/dev/null || echo "unknown")
+
+    if $on_ac; then
+        echo "performance"
+    elif [[ "$max_freq" -le "2400000" ]]; then
+        echo "power-saver"
+    elif [[ "$boost" == "0" ]] || [[ "$epp" == "power" ]]; then
+        echo "balanced"
+    else
+        echo "balanced"
+    fi
+}
+
+get_battery_status() {
+    if [[ ! -d /sys/class/power_supply/BAT* ]]; then
+        echo "No Battery"
+        return
+    fi
+
+    local capacity=$(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1)
+    local status=$(cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -1)
+    local current=$(cat /sys/class/power_supply/BAT*/current_now 2>/dev/null | head -1)
+    local voltage=$(cat /sys/class/power_supply/BAT*/voltage_now 2>/dev/null | head -1)
+
+    if [[ -n "$current" ]] && [[ -n "$voltage" ]] && [[ "$current" != "0" ]]; then
+        # Calculate power in watts: (current * voltage) / 1,000,000,000,000
+        local power_uw=$((current * voltage))
+        local power_w=$((power_uw / 1000000000000))
+
+        local status_icon=""
+        case "$status" in
+            Charging) status_icon="󰂄" ;;
+            Discharging) status_icon="󰁹" ;;
+            Full) status_icon="󰁹" ;;
+            *) status_icon="󰂑" ;;
+        esac
+
+        echo "${status_icon} ${capacity}% | ${power_w}W"
+    elif [[ -n "$capacity" ]]; then
+        echo "${capacity}%"
+    else
+        echo "N/A"
+    fi
+}
+
 get_system_status() {
     local status
     if command -v vibe-performance-status &>/dev/null; then
@@ -65,7 +126,9 @@ get_system_status() {
     # Fallback if status command not available
     local profile=$(get_thermal_profile)
     local turbo=$(get_turbo_state)
-    echo "Profile: ${profile^} | Turbo: ${turbo}"
+    local tlp=$(get_tlp_profile)
+    local battery=$(get_battery_status)
+    echo "TLP: ${tlp^} | Profile: ${profile^} | Turbo: ${turbo} | Battery: ${battery}"
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -76,6 +139,8 @@ show_main_menu() {
     local current_profile=$(get_thermal_profile)
     local turbo_state=$(get_turbo_state)
     local active_gpu=$(get_active_gpu)
+    local tlp_profile=$(get_tlp_profile)
+    local battery=$(get_battery_status)
 
     # Profile indicator
     local profile_indicator=""
@@ -87,9 +152,21 @@ show_main_menu() {
         *) profile_indicator="$ICON_PERFORMANCE" ;;
     esac
 
+    # TLP profile indicator
+    local tlp_indicator=""
+    case "$tlp_profile" in
+        performance) tlp_indicator="$ICON_PERF" ;;
+        balanced) tlp_indicator="$ICON_BALANCED" ;;
+        power-saver) tlp_indicator="$ICON_BATTERY" ;;
+        unavailable) tlp_indicator="$ICON_INFO" ;;
+        *) tlp_indicator="$ICON_POWER_PERF" ;;
+    esac
+
+    echo -e "$ICON_POWER_PERF\tTLP Power Mode [$tlp_indicator ${tlp_profile^}]"
     echo -e "$ICON_PERFORMANCE\tThermal Profiles [$profile_indicator ${current_profile^}]"
     echo -e "$ICON_TURBO\tCPU Turbo: [$turbo_state]"
     echo -e "$ICON_GPU\tGPU Mode: [$active_gpu]"
+    echo -e "$ICON_BATTERY\tBattery: [$battery]"
     echo -e "$ICON_INFO\tSystem Status"
 }
 
@@ -110,6 +187,29 @@ show_thermal_menu() {
     echo -e "$ICON_BALANCED\tBalanced$balanced_indicator"
     echo -e "$ICON_BATTERY\tBattery Saver$battery_indicator"
     echo -e "$ICON_COOL\tCool & Quiet$cool_indicator"
+    echo -e "$ICON_BACK\tBack"
+}
+
+show_tlp_menu() {
+    local current=$(get_tlp_profile)
+
+    if [[ "$current" == "unavailable" ]]; then
+        echo -e "$ICON_INFO\tTLP not installed"
+        echo -e "$ICON_BACK\tBack"
+        return
+    fi
+
+    local perf_indicator=""
+    local balanced_indicator=""
+    local saver_indicator=""
+
+    [[ "$current" == "performance" ]] && perf_indicator=" [✓ Active]"
+    [[ "$current" == "balanced" ]] && balanced_indicator=" [✓ Active]"
+    [[ "$current" == "power-saver" ]] && saver_indicator=" [✓ Active]"
+
+    echo -e "$ICON_PERF\tPerformance Mode$perf_indicator"
+    echo -e "$ICON_BALANCED\tBalanced Mode$balanced_indicator"
+    echo -e "$ICON_BATTERY\tPower Saver Mode$saver_indicator"
     echo -e "$ICON_BACK\tBack"
 }
 
@@ -139,6 +239,38 @@ apply_thermal_profile() {
         vibe-thermal-set "$profile"
     else
         vibe_notify "Error" "vibe-thermal-set not found" -u critical
+    fi
+}
+
+apply_tlp_profile() {
+    local profile="$1"
+
+    if ! command -v tlp &>/dev/null; then
+        vibe_notify "Error" "TLP not installed" -u critical
+        return 1
+    fi
+
+    local result
+    case "$profile" in
+        performance)
+            result=$(sudo tlp performance 2>&1)
+            ;;
+        balanced)
+            result=$(sudo tlp balanced 2>&1)
+            ;;
+        power-saver)
+            result=$(sudo tlp power-saver 2>&1)
+            ;;
+        *)
+            vibe_notify "Error" "Unknown TLP profile: $profile" -u critical
+            return 1
+            ;;
+    esac
+
+    if [[ $? -eq 0 ]]; then
+        vibe_notify "TLP Power Mode" "Switched to ${profile^} mode" -t 3000
+    else
+        vibe_notify "Error" "Failed to apply TLP profile\n$result" -u critical
     fi
 }
 
@@ -249,6 +381,21 @@ main() {
     local action="${main_choice##*$'\t'}"
 
     case "$action" in
+        *"TLP Power Mode"*)
+            # Show TLP submenu
+            local tlp_choice=$(show_tlp_menu | rofi_cmd "TLP Power Mode" "Select power profile")
+
+            [[ -z "$tlp_choice" || "$tlp_choice" == *"Back"* ]] && exec "$0"
+
+            local tlp_action="${tlp_choice##*$'\t'}"
+
+            case "$tlp_action" in
+                "Performance Mode"*) apply_tlp_profile "performance" ;;
+                "Balanced Mode"*) apply_tlp_profile "balanced" ;;
+                "Power Saver Mode"*) apply_tlp_profile "power-saver" ;;
+            esac
+            ;;
+
         *"Thermal Profiles"*)
             # Show thermal submenu
             local thermal_choice=$(show_thermal_menu | rofi_cmd "Thermal Profiles" "Select performance profile")
