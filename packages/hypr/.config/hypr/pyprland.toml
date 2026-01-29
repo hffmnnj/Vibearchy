@@ -78,7 +78,7 @@ unfocus = "hide"           # Hide when clicking outside
 lazy = true                # Don't launch until needed
 
 [scratchpads.monitor]
-command = "ghostty --class=com.ghostty-monitor -e btop"  # System monitor (btop)
+command = "kitty --class btop-float -e btop"  # System monitor (btop)
 position = "5% 5%"         # Near top-left but with margin
 size = "90% 90%"           # Nearly fullscreen
 animation = "fromBottom"   # Slide up from bottom
