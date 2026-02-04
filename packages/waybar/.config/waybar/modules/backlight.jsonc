@@ -1,9 +1,10 @@
 {
   "backlight": {
-    "device": "intel_backlight",
-    "format": "{percent}% {icon}",
-    "format-icons": ["", "", "", "", "", "", "", "", ""],
+    "device": "amdgpu_bl1",
+    "format": "{icon} {percent}%",
+    "format-icons": ["󰃞", "󰃟", "󰃠"],
     "on-scroll-up": "swayosd-client --brightness +10",
     "on-scroll-down": "swayosd-client --brightness -10",
-  },
+    "on-click": "brightness=$(brightnessctl -m | cut -d, -f4 | tr -d '%'); if [ $brightness -lt 25 ]; then brightnessctl set 25%; elif [ $brightness -lt 50 ]; then brightnessctl set 50%; elif [ $brightness -lt 75 ]; then brightnessctl set 75%; elif [ $brightness -lt 100 ]; then brightnessctl set 100%; else brightnessctl set 25%; fi"
+  }
 }

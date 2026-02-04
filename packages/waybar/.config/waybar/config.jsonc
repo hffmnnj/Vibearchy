@@ -20,7 +20,8 @@
       "~/.config/waybar/modules/disk.jsonc",
       "~/.config/waybar/modules/clock.jsonc",
       "~/.config/waybar/modules/battery.jsonc",
-      "~/.config/waybar/modules/pulseaudio.jsonc"
+      "~/.config/waybar/modules/pulseaudio.jsonc",
+      "~/.config/waybar/modules/backlight.jsonc"
     ],
 
     "name": "main",
@@ -51,6 +52,7 @@
       "tray",
       "custom/mullvad",
       "network",
+      "backlight",
       "pulseaudio",
       "battery",
       "clock#cl1",
